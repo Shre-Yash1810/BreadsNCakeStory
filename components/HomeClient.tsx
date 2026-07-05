@@ -79,6 +79,17 @@ export default function HomeClient() {
     setTrainStep(currentStep + diff);
   };
 
+  // Testimonials slider state
+  const [activeReviewIndex, setActiveReviewIndex] = useState(0);
+
+  useEffect(() => {
+    if (reviews.length === 0) return;
+    const interval = setInterval(() => {
+      setActiveReviewIndex((prev) => (prev + 1) % Math.min(reviews.length, 6));
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [reviews.length]);
+
   const handleReviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const errors: Record<string, string> = {};
@@ -727,28 +738,52 @@ export default function HomeClient() {
             <div className="w-16 h-[2px] bg-luxury-gold mx-auto" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {reviews.slice(0, 6).map((test, index) => (
-              <div
-                key={test.id || index}
-                className="bg-cream-50/60 rounded-2xl p-6 border border-cream-200 flex flex-col justify-between hover:shadow-premium transition-shadow duration-300"
-              >
-                <div>
-                  <div className="flex gap-0.5 mb-4">
-                    {Array.from({ length: test.rating }).map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-luxury-gold text-luxury-gold" />
-                    ))}
-                  </div>
-                  <p className="text-sm italic text-cocoa-500 leading-relaxed font-normal mb-6">
-                    "{test.quote}"
-                  </p>
-                </div>
-                <div className="border-t border-cream-100 pt-4">
-                  <h4 className="heading-luxury text-sm font-bold text-cocoa-900">{test.name}</h4>
-                </div>
+          {reviews.length > 0 && (
+            <div className="max-w-xl mx-auto mb-12 relative px-4">
+              <div className="relative overflow-hidden min-h-[180px] sm:min-h-[140px] flex items-center justify-center">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeReviewIndex}
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -30 }}
+                    transition={{ duration: 0.4, ease: 'easeInOut' }}
+                    className="w-full bg-cream-50/60 rounded-2xl p-6 sm:p-8 border border-cream-200 shadow-sm flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex gap-0.5 mb-4 justify-center sm:justify-start">
+                        {Array.from({ length: reviews[activeReviewIndex].rating }).map((_, i) => (
+                          <Star key={i} className="w-4 h-4 fill-luxury-gold text-luxury-gold" />
+                        ))}
+                      </div>
+                      <p className="text-sm italic text-cocoa-500 leading-relaxed font-normal mb-6 text-center sm:text-left">
+                        "{reviews[activeReviewIndex].quote}"
+                      </p>
+                    </div>
+                    <div className="border-t border-cream-100 pt-4 text-center sm:text-left">
+                      <h4 className="heading-luxury text-sm font-bold text-cocoa-900">
+                        {reviews[activeReviewIndex].name}
+                      </h4>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
               </div>
-            ))}
-          </div>
+
+              {/* Dots Indicators */}
+              <div className="flex justify-center gap-2 mt-6">
+                {reviews.slice(0, 6).map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveReviewIndex(idx)}
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      idx === activeReviewIndex ? 'bg-luxury-gold w-4' : 'bg-cream-200'
+                    }`}
+                    aria-label={`Go to review ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Review Submission Form */}
           <div className="max-w-xl mx-auto border-t border-cream-200 pt-12">
