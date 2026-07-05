@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp, Product } from '@/context/AppContext';
 import Navbar from '@/components/Navbar';
 import HeroScene from '@/components/HeroScene';
