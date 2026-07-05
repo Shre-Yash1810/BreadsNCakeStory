@@ -588,38 +588,7 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {/* 7. Instagram Gallery Section */}
-      <section id="gallery" className="py-20 bg-cream-50 border-t border-cream-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-bold mb-2 block">Showcase</span>
-            <h2 className="heading-luxury text-3xl sm:text-4xl text-cocoa-900 mb-4">The Pastry Gallery</h2>
-            <div className="w-16 h-[2px] bg-luxury-gold mx-auto mb-4" />
-            <p className="text-sm text-cocoa-500 max-w-xl mx-auto">
-              Browse through our fresh luxury cake creations. Tap any image to explore more details or request custom recreations.
-            </p>
-          </div>
 
-          {/* Masonry Grid */}
-          <div className="columns-2 lg:columns-4 gap-3 sm:gap-4 space-y-3 sm:space-y-4 px-2 sm:px-4">
-            {gallery.map((img, idx) => (
-              <div
-                key={idx}
-                className="relative overflow-hidden rounded-xl bg-white border border-cream-200 group shadow-sm break-inside-avoid cursor-pointer"
-              >
-                <img
-                  src={img}
-                  alt={`Bakery Showcase ${idx}`}
-                  className="object-cover w-full h-auto transition-transform duration-700 group-hover:scale-103"
-                />
-                <div className="absolute inset-0 bg-cocoa-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
-                  <Instagram className="w-7 h-7 text-white animate-bounce" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* 8. Contact Section */}
       <section id="contact" className="py-20 bg-white border-t border-cream-200">

@@ -89,7 +89,6 @@ const Navbar: React.FC<NavbarProps> = ({ onCartOpen }) => {
               { label: 'Home', id: 'hero' },
               { label: 'Cakes', id: 'products' },
               { label: 'Custom Cakes', id: 'custom-cake' },
-              { label: 'Gallery', id: 'gallery' },
               { label: 'Contact', id: 'contact' }
             ].map((item) => (
               <a
@@ -156,7 +155,6 @@ const Navbar: React.FC<NavbarProps> = ({ onCartOpen }) => {
                 { label: 'Home', id: 'hero' },
                 { label: 'Cakes Catalog', id: 'products' },
                 { label: 'Custom Cakes', id: 'custom-cake' },
-                { label: 'Gallery Showcase', id: 'gallery' },
                 { label: 'Contact Us', id: 'contact' }
               ].map((item) => (
                 <a

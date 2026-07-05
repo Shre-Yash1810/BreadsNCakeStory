@@ -9,15 +9,12 @@ export default function AdminClient() {
     products,
     orders,
     settings,
-    gallery,
     addProduct,
     updateProduct,
     deleteProduct,
     updateOrderStatus,
     deleteOrder,
-    updateSettings,
-    addGalleryImage,
-    removeGalleryImage
+    updateSettings
   } = useApp();
 
   // Authentication state
@@ -26,7 +23,7 @@ export default function AdminClient() {
   const [loginError, setLoginError] = useState('');
 
   // Active admin section
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'settings' | 'gallery'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'settings'>('dashboard');
 
   // Search & Filters inside Admin
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
@@ -44,7 +41,7 @@ export default function AdminClient() {
   });
   
   // Image Upload helper converting to Base64
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, field: 'product' | 'logo' | 'gallery') => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, field: 'product' | 'logo') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -55,8 +52,6 @@ export default function AdminClient() {
         setProductForm(prev => ({ ...prev, image: base64String }));
       } else if (field === 'logo') {
         updateSettings({ logoUrl: base64String });
-      } else if (field === 'gallery') {
-        addGalleryImage(base64String);
       }
     };
     reader.readAsDataURL(file);
@@ -65,7 +60,7 @@ export default function AdminClient() {
   // Login handler
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginForm.username === 'admin' && loginForm.password === 'cakestory_premium') {
+    if (loginForm.username === 'admin' && loginForm.password === 'admin123') {
       setIsAuthenticated(true);
       setLoginError('');
       // Save session
@@ -290,8 +285,7 @@ export default function AdminClient() {
               { id: 'dashboard', label: 'Dashboard Overview', icon: LayoutDashboard },
               { id: 'products', label: 'Products Catalog', icon: Cake },
               { id: 'orders', label: 'Order Register', icon: ShoppingCart },
-              { id: 'settings', label: 'Website settings', icon: Settings },
-              { id: 'gallery', label: 'Media Gallery', icon: ImageIcon }
+              { id: 'settings', label: 'Website settings', icon: Settings }
             ].map((tab) => {
               const Icon = tab.icon;
               return (
@@ -893,61 +887,7 @@ export default function AdminClient() {
           </div>
         )}
 
-        {/* VIEW 5: MEDIA GALLERY LIBRARY */}
-        {activeTab === 'gallery' && (
-          <div className="space-y-6 font-sans">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="heading-luxury text-3xl font-bold text-cocoa-900">Media Gallery</h2>
-                <p className="text-xs text-cocoa-500 font-normal">Manage photos appearing on your homepage Instagram Gallery Masonry.</p>
-              </div>
 
-              <div className="relative">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageUpload(e, 'gallery')}
-                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
-                />
-                <button
-                  type="button"
-                  className="bg-gold-gradient hover:opacity-95 text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 shadow-gold-glow text-xs"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Photo to Gallery
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-cream-200 p-6 shadow-sm">
-              {gallery.length === 0 ? (
-                <p className="text-sm text-cocoa-100 text-center py-10">No gallery images found. Upload some assets!</p>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {gallery.map((imgUrl, index) => (
-                    <div
-                      key={index}
-                      className="relative aspect-square rounded-xl overflow-hidden group border border-cream-200 bg-cream-50"
-                    >
-                      <img src={imgUrl} alt={`Gallery asset ${index}`} className="object-cover w-full h-full" />
-                      
-                      <div className="absolute inset-0 bg-cocoa-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
-                        <button
-                          type="button"
-                          onClick={() => { if(confirm("Remove this photo from the homepage gallery?")) removeGalleryImage(imgUrl); }}
-                          className="bg-red-600 text-white p-3 rounded-full hover:bg-red-700 transition-colors shadow-lg scale-90 group-hover:scale-100 duration-300"
-                          title="Remove from Gallery"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </main>
     </div>
   );

@@ -1,0 +1,14 @@
+Database-MongoDB:
+email
+password
+account making first free then paid
+c_name,product_details,event_type,delivery_date
+
+Backend:
+whatsapp automation api
+upi/rajorpay
+product completed/pending details
+
+
+w.api monthly charges as per usage
+razorpay every success payment charges
