@@ -298,7 +298,7 @@ export default function HomeClient() {
                       onClick={() => {
                         setTrainIndex(idx);
                       }}
-                      className={`absolute left-1/2 top-1/2 w-24 h-24 sm:w-36 sm:h-36 -ml-12 sm:-ml-18 -mt-12 sm:-mt-18 rounded-2xl overflow-hidden border-4 bg-white cursor-pointer shadow-premium transition-all duration-500 ring-item-3d ${
+                      className={`absolute left-1/2 top-1/2 w-20 h-20 sm:w-36 sm:h-36 rounded-2xl overflow-hidden border-4 bg-white cursor-pointer shadow-premium transition-all duration-500 ring-item-3d ${
                         isVisible
                           ? isSelected
                             ? 'border-luxury-gold ring-4 ring-luxury-gold/20 scale-102 z-10 opacity-100 pointer-events-auto'
@@ -322,7 +322,7 @@ export default function HomeClient() {
 
             {/* Carousel Control Buttons */}
             {products.length > 0 && (
-              <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2 sm:px-12 pointer-events-none z-20">
+              <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 hidden sm:flex justify-between px-2 sm:px-12 pointer-events-none z-20">
                 <button
                   type="button"
                   onClick={() => {
