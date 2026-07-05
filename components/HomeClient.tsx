@@ -11,7 +11,7 @@ import { Star, Eye, ShoppingBag, Plus, Minus, Info, Check, MessageSquare, Instag
 import confetti from 'canvas-confetti';
 
 export default function HomeClient() {
-  const { products, settings, gallery, addToCart, reviews, addReview } = useApp();
+  const { products, settings, gallery, addToCart, reviews, addReview, addOrder } = useApp();
   
   // Modal & Drawer State
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -33,6 +33,11 @@ export default function HomeClient() {
     instructions: ''
   });
   const [customErrors, setCustomErrors] = useState<Record<string, string>>({});
+
+  // Custom cake upload image state
+  const [customImage, setCustomImage] = useState<File | null>(null);
+  const [customImagePreview, setCustomImagePreview] = useState<string>('');
+  const [isUploadingCustom, setIsUploadingCustom] = useState(false);
 
   // Review form states
   const [reviewForm, setReviewForm] = useState({
@@ -101,7 +106,8 @@ export default function HomeClient() {
   };
 
   // Custom Inquiry submit
-  const handleCustomInquiry = (e: React.FormEvent) => {
+  // Custom Inquiry submit
+  const handleCustomInquiry = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
     if (!customForm.name.trim()) newErrors.name = 'Name is required';
@@ -113,6 +119,32 @@ export default function HomeClient() {
     if (Object.keys(newErrors).length > 0) {
       setCustomErrors(newErrors);
       return;
+    }
+
+    let uploadedUrl = '';
+    if (customImage) {
+      setIsUploadingCustom(true);
+      try {
+        const formData = new FormData();
+        formData.append('file', customImage);
+        
+        // Uploading anonymously to tmpfiles.org
+        const uploadRes = await fetch('https://tmpfiles.org/api/v1/upload', {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (uploadRes.ok) {
+          const uploadJson = await uploadRes.json();
+          if (uploadJson.status === 'success' && uploadJson.data?.url) {
+            // Convert to direct link for easy viewing
+            uploadedUrl = uploadJson.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+          }
+        }
+      } catch (err) {
+        console.error("Reference image upload failed", err);
+      }
+      setIsUploadingCustom(false);
     }
 
     // Format WhatsApp message
@@ -128,10 +160,32 @@ export default function HomeClient() {
     message += `• *Delivery Date:* ${customForm.date}\n\n`;
     if (customForm.instructions.trim()) {
       message += `✍️ *Instructions/Flavor Request:*\n`;
-      message += `${customForm.instructions}\n`;
+      message += `${customForm.instructions}\n\n`;
+    }
+    if (uploadedUrl) {
+      message += `📸 *Reference Image URL:*\n${uploadedUrl}\n\n`;
     }
     message += `==========================\n`;
     message += `*Please review and confirm cake booking availability.*`;
+
+    // Save as local custom order so admin can view it
+    addOrder({
+      customerName: customForm.name,
+      mobile: customForm.phone,
+      whatsapp: customForm.phone,
+      address: 'Bespoke Custom Cake Inquiry',
+      landmark: `Event: ${customForm.eventType}`,
+      notes: `Theme: ${customForm.theme}. Prep Date: ${customForm.date}. Instructions: ${customForm.instructions}`,
+      items: [{
+        id: `custom-${Date.now()}`,
+        name: `Bespoke Custom Cake`,
+        price: 0,
+        quantity: 1,
+        weight: parseFloat(customForm.weight),
+        image: uploadedUrl || '/images/cake_themed_1.png'
+      }],
+      total: 0
+    });
 
     const encodedText = encodeURIComponent(message);
     let ownerNum = settings.whatsappNumber;
@@ -139,7 +193,7 @@ export default function HomeClient() {
 
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${ownerNum}&text=${encodedText}`;
     
-    // Clear custom form
+    // Clear custom form and reset image states
     setCustomForm({
       name: '',
       phone: '',
@@ -149,6 +203,8 @@ export default function HomeClient() {
       date: '',
       instructions: ''
     });
+    setCustomImage(null);
+    setCustomImagePreview('');
     setCustomErrors({});
     window.open(whatsappUrl, '_blank');
   };
@@ -468,13 +524,50 @@ export default function HomeClient() {
                 />
               </div>
 
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">
+                  Upload Reference Image / Design Sketch <span className="text-[10px] text-cocoa-100 italic">(Optional)</span>
+                </label>
+                <div className="flex items-center gap-4 mt-1 bg-white p-3 rounded-lg border border-cream-200">
+                  {customImagePreview && (
+                    <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-cream-200 bg-cream-50 flex-shrink-0">
+                      <img src={customImagePreview} alt="Reference Preview" className="object-cover w-full h-full" />
+                      <button
+                        type="button"
+                        onClick={() => { setCustomImage(null); setCustomImagePreview(''); }}
+                        className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 text-[8px] hover:bg-red-700 leading-none"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setCustomImage(file);
+                        setCustomImagePreview(URL.createObjectURL(file));
+                      }
+                    }}
+                    className="w-full text-xs text-cocoa-100 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-luxury-champagne file:text-luxury-gold hover:file:opacity-90 cursor-pointer"
+                  />
+                </div>
+              </div>
+
               <div className="sm:col-span-2 pt-2">
                 <button
                   type="submit"
-                  className="w-full bg-cocoa-500 hover:bg-cocoa-800 hover:shadow-premium text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2.5 transition-all duration-300 active:scale-98"
+                  disabled={isUploadingCustom}
+                  className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2.5 transition-all duration-300 active:scale-98 ${
+                    isUploadingCustom
+                      ? 'bg-cocoa-300 text-cocoa-500 cursor-not-allowed'
+                      : 'bg-cocoa-500 hover:bg-cocoa-800 hover:shadow-premium text-white'
+                  }`}
                 >
                   <MessageSquare className="w-5 h-5 text-luxury-gold" />
-                  Send Inquiry on WhatsApp
+                  {isUploadingCustom ? 'Uploading Reference Image...' : 'Send Inquiry on WhatsApp'}
                 </button>
               </div>
             </form>
