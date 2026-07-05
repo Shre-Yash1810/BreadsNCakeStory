@@ -136,7 +136,7 @@ body {
 }
 
 .ring-container {
-  --radius-dynamic: 155px;
+  --radius-dynamic: 200px;
 }
 
 @media (min-width: 640px) {
