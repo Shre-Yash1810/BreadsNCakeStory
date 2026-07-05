@@ -129,3 +129,35 @@ body {
   line-height: 0;
   z-index: 10;
 }
+
+/* 3D Circular Train Carousel */
+.perspective-container {
+  perspective: 1200px;
+}
+
+.ring-container {
+  --radius-dynamic: 130px;
+}
+
+@media (min-width: 640px) {
+  .ring-container {
+    --radius-dynamic: 220px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ring-container {
+    --radius-dynamic: 300px;
+  }
+}
+
+.ring-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.ring-item-3d {
+  backface-visibility: visible;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s ease, opacity 0.5s ease;
+}

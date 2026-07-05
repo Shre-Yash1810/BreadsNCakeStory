@@ -49,6 +49,18 @@ export default function HomeClient() {
   const [reviewSubmitSuccess, setReviewSubmitSuccess] = useState(false);
   const [reviewErrors, setReviewErrors] = useState<Record<string, string>>({});
 
+  // Circular train states
+  const [trainIndex, setTrainIndex] = useState(0);
+  const [autoRotateTrain, setAutoRotateTrain] = useState(true);
+
+  useEffect(() => {
+    if (!autoRotateTrain || products.length === 0) return;
+    const interval = setInterval(() => {
+      setTrainIndex((prev) => (prev + 1) % products.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [autoRotateTrain, products.length]);
+
   const handleReviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const errors: Record<string, string> = {};
@@ -239,12 +251,152 @@ export default function HomeClient() {
     }
   ];
 
+  const anglePerItem = products.length > 0 ? 360 / products.length : 0;
+  const currentRotation = -trainIndex * anglePerItem;
+
   return (
     <>
       <Navbar onCartOpen={() => setIsCartOpen(true)} />
       
       {/* 1. Hero Section */}
       <HeroScene />
+
+      {/* Circular Train Carousel Section */}
+      <section className="py-16 bg-white border-t border-cream-200 overflow-hidden relative">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(243,234,211,0.25)_0%,transparent_60%)] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-8">
+            <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-bold mb-2 block">Interactive Orbit</span>
+            <h2 className="heading-luxury text-3xl sm:text-4xl text-cocoa-900 mb-4">The Patisserie Carousel</h2>
+            <div className="w-16 h-[2px] bg-luxury-gold mx-auto mb-4" />
+            <p className="text-sm text-cocoa-500 max-w-xl mx-auto">
+              Spin the rotating train of sweet creations. Tap any cake to reveal its name, flavor profile, and direct order options.
+            </p>
+          </div>
+
+          {/* 3D Train Container */}
+          <div className="relative h-[240px] sm:h-[320px] flex items-center justify-center perspective-container ring-container">
+            {products.length > 0 && (
+              <div
+                className="relative w-full h-full flex items-center justify-center ring-3d"
+                style={{
+                  transform: `rotateY(${currentRotation}deg)`,
+                  '--radius': 'var(--radius-dynamic)'
+                } as any}
+              >
+                {products.map((product, idx) => {
+                  const itemAngle = idx * anglePerItem;
+                  const isSelected = idx === trainIndex;
+                  return (
+                    <div
+                      key={product.id}
+                      onClick={() => {
+                        setTrainIndex(idx);
+                        setAutoRotateTrain(false);
+                      }}
+                      className={`absolute left-1/2 top-1/2 w-24 h-24 sm:w-36 sm:h-36 -ml-12 sm:-ml-18 -mt-12 sm:-mt-18 rounded-full overflow-hidden border-4 bg-white cursor-pointer shadow-premium transition-all duration-500 ring-item-3d hover:scale-105 ${
+                        isSelected
+                          ? 'border-luxury-gold ring-4 ring-luxury-gold/20 scale-102 z-10'
+                          : 'border-white opacity-70 hover:opacity-100 scale-95'
+                      }`}
+                      style={{
+                        transform: `translate(-50%, -50%) rotateY(${itemAngle}deg) translateZ(var(--radius))`,
+                      }}
+                    >
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="object-cover w-full h-full pointer-events-none"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Carousel Control Buttons */}
+            {products.length > 0 && (
+              <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2 sm:px-12 pointer-events-none z-20">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTrainIndex((prev) => (prev - 1 + products.length) % products.length);
+                    setAutoRotateTrain(false);
+                  }}
+                  className="w-10 h-10 sm:w-12 sm:h-12 bg-white/95 backdrop-blur-sm border border-cream-200 text-cocoa-900 rounded-full flex items-center justify-center shadow-md hover:bg-luxury-gold hover:text-white transition-all duration-300 pointer-events-auto active:scale-90"
+                  aria-label="Previous Cake"
+                >
+                  ←
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTrainIndex((prev) => (prev + 1) % products.length);
+                    setAutoRotateTrain(false);
+                  }}
+                  className="w-10 h-10 sm:w-12 sm:h-12 bg-white/95 backdrop-blur-sm border border-cream-200 text-cocoa-900 rounded-full flex items-center justify-center shadow-md hover:bg-luxury-gold hover:text-white transition-all duration-300 pointer-events-auto active:scale-90"
+                  aria-label="Next Cake"
+                >
+                  →
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Active Detail Sheet below Orbit */}
+          {products.length > 0 && (
+            <div className="max-w-xl mx-auto mt-6 px-4">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={trainIndex}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  className="bg-cream-50/70 backdrop-blur-md border border-cream-200 p-6 sm:p-8 rounded-2xl shadow-premium text-center font-sans"
+                >
+                  <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-bold px-3 py-1 bg-luxury-champagne rounded-full">
+                    {products[trainIndex].category} Cake
+                  </span>
+                  
+                  <h3 className="heading-luxury text-xl sm:text-2xl font-bold text-cocoa-900 mt-4 mb-2">
+                    {products[trainIndex].name}
+                  </h3>
+                  
+                  <p className="text-xs sm:text-sm text-cocoa-500 leading-relaxed max-w-md mx-auto mb-6">
+                    {products[trainIndex].description}
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 border-t border-cream-100 pt-5">
+                    <div className="text-center sm:text-left">
+                      <span className="text-[10px] text-cocoa-100 uppercase tracking-widest font-bold block mb-0.5">Est. Price</span>
+                      <span className="text-xl sm:text-2xl font-extrabold text-cocoa-900">
+                        ₹{products[trainIndex].price} <span className="text-xs sm:text-sm text-cocoa-100 font-normal">/ 0.5kg</span>
+                      </span>
+                    </div>
+
+                    <div className="flex gap-3 w-full sm:w-auto">
+                      <button
+                        onClick={() => setActiveProduct(products[trainIndex])}
+                        className="flex-1 sm:flex-initial bg-white hover:bg-cream-100 border border-cream-200 text-cocoa-900 py-3 px-6 rounded-xl text-xs font-bold transition-all duration-300 shadow-sm active:scale-95"
+                      >
+                        Quick View
+                      </button>
+                      <button
+                        onClick={() => handleCardAddToCart(products[trainIndex])}
+                        className="flex-1 sm:flex-initial bg-gold-gradient hover:opacity-95 text-white py-3 px-6 rounded-xl text-xs font-bold transition-all duration-300 shadow-gold-glow active:scale-95"
+                      >
+                        Add to Basket
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* 2. Featured Categories Section */}
       <section id="products" className="py-20 bg-cream-50 relative">
