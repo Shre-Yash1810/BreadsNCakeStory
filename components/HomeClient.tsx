@@ -868,9 +868,9 @@ export default function HomeClient() {
             <div className="w-16 h-[2px] bg-luxury-gold mx-auto" />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div className="max-w-xl mx-auto">
             {/* Contact Details Card */}
-            <div className="lg:col-span-5 bg-cream-50 rounded-2xl border border-cream-200 p-6 sm:p-8 space-y-6 shadow-sm">
+            <div className="bg-cream-50 rounded-2xl border border-cream-200 p-6 sm:p-8 space-y-6 shadow-sm">
               <div>
                 <h3 className="heading-luxury text-lg font-bold text-cocoa-900 mb-1">{settings.bakeryName}</h3>
                 <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-bold">Patisserie & Custom Cakes</span>
@@ -908,27 +908,6 @@ export default function HomeClient() {
                   className="bg-green-600 hover:bg-green-700 text-white text-center py-3 rounded-xl text-xs font-bold transition-all duration-300"
                 >
                   WhatsApp Us
-                </a>
-              </div>
-            </div>
-
-            {/* Premium Map Placeholder */}
-            <div className="lg:col-span-7 aspect-video w-full relative rounded-2xl overflow-hidden shadow-premium border border-cream-200 bg-cream-50 flex items-center justify-center">
-              <div className="absolute inset-0 bg-gradient-to-tr from-luxury-champagne/40 to-white/80 z-10 pointer-events-none" />
-              <div className="text-center px-6 z-20">
-                <div className="w-12 h-12 bg-luxury-champagne rounded-full flex items-center justify-center mx-auto mb-4 border border-luxury-gold/30">
-                  <Info className="w-5 h-5 text-luxury-gold" />
-                </div>
-                <h4 className="heading-luxury text-base font-bold text-cocoa-900 mb-2">Location Map</h4>
-                <p className="text-xs text-cocoa-500 max-w-md mx-auto mb-4 font-normal leading-relaxed">
-                  Opposite Shreeji Pure Veg, Bharti Vidyapeeth Dattangar Road, Tiranga Chowk, Ambegaon, Pune - 411046
-                </p>
-                <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(settings.address)}`}
-                  target="_blank"
-                  className="inline-flex items-center gap-2 bg-cocoa-900 text-white text-xs font-semibold px-5 py-2.5 rounded-xl shadow-premium hover:bg-luxury-gold transition-colors duration-300"
-                >
-                  Open in Google Maps
                 </a>
               </div>
             </div>
