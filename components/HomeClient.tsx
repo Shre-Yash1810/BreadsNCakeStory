@@ -57,7 +57,7 @@ export default function HomeClient() {
     if (!autoRotateTrain || products.length === 0) return;
     const interval = setInterval(() => {
       setTrainIndex((prev) => (prev + 1) % products.length);
-    }, 4500);
+    }, 2500);
     return () => clearInterval(interval);
   }, [autoRotateTrain, products.length]);
 
