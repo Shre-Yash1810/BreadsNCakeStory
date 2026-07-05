@@ -288,17 +288,22 @@ export default function HomeClient() {
                 {products.map((product, idx) => {
                   const itemAngle = idx * anglePerItem;
                   const isSelected = idx === trainIndex;
+                  const isVisible = idx === trainIndex ||
+                    idx === (trainIndex - 1 + products.length) % products.length ||
+                    idx === (trainIndex + 1) % products.length;
+
                   return (
                     <div
                       key={product.id}
                       onClick={() => {
                         setTrainIndex(idx);
-                        setAutoRotateTrain(false);
                       }}
-                      className={`absolute left-1/2 top-1/2 w-24 h-24 sm:w-36 sm:h-36 -ml-12 sm:-ml-18 -mt-12 sm:-mt-18 rounded-2xl overflow-hidden border-4 bg-white cursor-pointer shadow-premium transition-all duration-500 ring-item-3d hover:scale-105 ${
-                        isSelected
-                          ? 'border-luxury-gold ring-4 ring-luxury-gold/20 scale-102 z-10'
-                          : 'border-white opacity-70 hover:opacity-100 scale-95'
+                      className={`absolute left-1/2 top-1/2 w-24 h-24 sm:w-36 sm:h-36 -ml-12 sm:-ml-18 -mt-12 sm:-mt-18 rounded-2xl overflow-hidden border-4 bg-white cursor-pointer shadow-premium transition-all duration-500 ring-item-3d ${
+                        isVisible
+                          ? isSelected
+                            ? 'border-luxury-gold ring-4 ring-luxury-gold/20 scale-102 z-10 opacity-100 pointer-events-auto'
+                            : 'border-white opacity-40 sm:opacity-60 scale-90 z-0 pointer-events-auto'
+                          : 'opacity-0 pointer-events-none scale-75 z-0'
                       }`}
                       style={{
                         transform: `translate(-50%, -50%) rotateY(${itemAngle}deg) translateZ(var(--radius))`,
@@ -322,7 +327,6 @@ export default function HomeClient() {
                   type="button"
                   onClick={() => {
                     setTrainIndex((prev) => (prev - 1 + products.length) % products.length);
-                    setAutoRotateTrain(false);
                   }}
                   className="w-10 h-10 sm:w-12 sm:h-12 bg-white/95 backdrop-blur-sm border border-cream-200 text-cocoa-900 rounded-full flex items-center justify-center shadow-md hover:bg-luxury-gold hover:text-white transition-all duration-300 pointer-events-auto active:scale-90"
                   aria-label="Previous Cake"
@@ -333,7 +337,6 @@ export default function HomeClient() {
                   type="button"
                   onClick={() => {
                     setTrainIndex((prev) => (prev + 1) % products.length);
-                    setAutoRotateTrain(false);
                   }}
                   className="w-10 h-10 sm:w-12 sm:h-12 bg-white/95 backdrop-blur-sm border border-cream-200 text-cocoa-900 rounded-full flex items-center justify-center shadow-md hover:bg-luxury-gold hover:text-white transition-all duration-300 pointer-events-auto active:scale-90"
                   aria-label="Next Cake"
@@ -346,51 +349,17 @@ export default function HomeClient() {
 
           {/* Active Detail Sheet below Orbit */}
           {products.length > 0 && (
-            <div className="max-w-xl mx-auto mt-6 px-4">
+            <div className="text-center mt-8 h-8 px-4">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={trainIndex}
-                  initial={{ opacity: 0, y: 15 }}
+                  initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.4, ease: 'easeOut' }}
-                  className="bg-cream-50/70 backdrop-blur-md border border-cream-200 p-6 sm:p-8 rounded-2xl shadow-premium text-center font-sans"
+                  exit={{ opacity: 0, y: -5 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-xs sm:text-sm font-extrabold text-cocoa-900 uppercase tracking-widest"
                 >
-                  <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-bold px-3 py-1 bg-luxury-champagne rounded-full">
-                    {products[trainIndex].category} Cake
-                  </span>
-                  
-                  <h3 className="heading-luxury text-xl sm:text-2xl font-bold text-cocoa-900 mt-4 mb-2">
-                    {products[trainIndex].name}
-                  </h3>
-                  
-                  <p className="text-xs sm:text-sm text-cocoa-500 leading-relaxed max-w-md mx-auto mb-6">
-                    {products[trainIndex].description}
-                  </p>
-
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 border-t border-cream-100 pt-5">
-                    <div className="text-center sm:text-left">
-                      <span className="text-[10px] text-cocoa-100 uppercase tracking-widest font-bold block mb-0.5">Est. Price</span>
-                      <span className="text-xl sm:text-2xl font-extrabold text-cocoa-900">
-                        ₹{products[trainIndex].price} <span className="text-xs sm:text-sm text-cocoa-100 font-normal">/ 0.5kg</span>
-                      </span>
-                    </div>
-
-                    <div className="flex gap-3 w-full sm:w-auto">
-                      <button
-                        onClick={() => setActiveProduct(products[trainIndex])}
-                        className="flex-1 sm:flex-initial bg-white hover:bg-cream-100 border border-cream-200 text-cocoa-900 py-3 px-6 rounded-xl text-xs font-bold transition-all duration-300 shadow-sm active:scale-95"
-                      >
-                        Quick View
-                      </button>
-                      <button
-                        onClick={() => handleCardAddToCart(products[trainIndex])}
-                        className="flex-1 sm:flex-initial bg-gold-gradient hover:opacity-95 text-white py-3 px-6 rounded-xl text-xs font-bold transition-all duration-300 shadow-gold-glow active:scale-95"
-                      >
-                        Add to Basket
-                      </button>
-                    </div>
-                  </div>
+                  {products[trainIndex].name} — <span className="text-luxury-gold font-black">₹{products[trainIndex].price}</span>
                 </motion.div>
               </AnimatePresence>
             </div>
