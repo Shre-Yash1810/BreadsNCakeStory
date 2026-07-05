@@ -136,18 +136,18 @@ body {
 }
 
 .ring-container {
-  --radius-dynamic: 110px;
+  --radius-dynamic: 115px;
 }
 
 @media (min-width: 640px) {
   .ring-container {
-    --radius-dynamic: 220px;
+    --radius-dynamic: 250px;
   }
 }
 
 @media (min-width: 1024px) {
   .ring-container {
-    --radius-dynamic: 300px;
+    --radius-dynamic: 330px;
   }
 }
 

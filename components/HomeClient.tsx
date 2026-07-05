@@ -294,7 +294,7 @@ export default function HomeClient() {
           </div>
 
           {/* 3D Train Container */}
-          <div className="relative h-[240px] sm:h-[320px] flex items-center justify-center perspective-container ring-container">
+          <div className="relative h-[280px] sm:h-[400px] flex items-center justify-center perspective-container ring-container">
             {products.length > 0 && (
               <div
                 className="relative w-full h-full flex items-center justify-center ring-3d"
@@ -316,12 +316,12 @@ export default function HomeClient() {
                       onClick={() => {
                         rotateToCard(idx);
                       }}
-                      className={`absolute left-1/2 top-1/2 w-20 h-20 sm:w-36 sm:h-36 rounded-2xl overflow-hidden border-4 bg-white cursor-pointer shadow-premium transition-all duration-500 ring-item-3d ${
+                      className={`absolute left-1/2 top-1/2 w-32 h-32 sm:w-56 sm:h-56 rounded-2xl overflow-hidden border-4 bg-white cursor-pointer shadow-premium transition-all duration-500 ring-item-3d ${
                         isVisible
                           ? isSelected
-                            ? 'border-luxury-gold ring-4 ring-luxury-gold/20 scale-102 z-10 opacity-100 pointer-events-auto'
-                            : 'border-white opacity-40 sm:opacity-60 scale-90 z-0 pointer-events-auto'
-                          : 'opacity-0 pointer-events-none scale-75 z-0'
+                            ? 'border-luxury-gold ring-4 ring-luxury-gold/25 scale-120 z-10 opacity-100 pointer-events-auto shadow-gold-glow'
+                            : 'border-white opacity-40 sm:opacity-60 scale-80 z-0 pointer-events-auto'
+                          : 'opacity-0 pointer-events-none scale-65 z-0'
                       }`}
                       style={{
                         transform: `translate(-50%, -50%) rotateY(${itemAngle}deg) translateZ(var(--radius))`,
@@ -367,7 +367,7 @@ export default function HomeClient() {
 
           {/* Active Detail Sheet below Orbit */}
           {products.length > 0 && (
-            <div className="text-center mt-8 h-8 px-4">
+            <div className="text-center mt-12 sm:mt-16 h-8 px-4">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={trainIndex}
