@@ -50,16 +50,34 @@ export default function HomeClient() {
   const [reviewErrors, setReviewErrors] = useState<Record<string, string>>({});
 
   // Circular train states
-  const [trainIndex, setTrainIndex] = useState(0);
+  const [trainStep, setTrainStep] = useState(0);
   const [autoRotateTrain, setAutoRotateTrain] = useState(true);
+
+  const trainIndex = products.length > 0 ? ((trainStep % products.length) + products.length) % products.length : 0;
 
   useEffect(() => {
     if (!autoRotateTrain || products.length === 0) return;
     const interval = setInterval(() => {
-      setTrainIndex((prev) => (prev + 1) % products.length);
-    }, 2500);
+      setTrainStep((prev) => prev + 1);
+    }, 1800);
     return () => clearInterval(interval);
   }, [autoRotateTrain, products.length]);
+
+  const rotateToCard = (idx: number) => {
+    const n = products.length;
+    if (n === 0) return;
+    const currentStep = trainStep;
+    const currentIdx = ((currentStep % n) + n) % n;
+    
+    let diff = idx - currentIdx;
+    if (diff > n / 2) {
+      diff -= n;
+    } else if (diff < -n / 2) {
+      diff += n;
+    }
+    
+    setTrainStep(currentStep + diff);
+  };
 
   const handleReviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -252,7 +270,7 @@ export default function HomeClient() {
   ];
 
   const anglePerItem = products.length > 0 ? 360 / products.length : 0;
-  const currentRotation = -trainIndex * anglePerItem;
+  const currentRotation = -trainStep * anglePerItem;
 
   return (
     <>
@@ -296,7 +314,7 @@ export default function HomeClient() {
                     <div
                       key={product.id}
                       onClick={() => {
-                        setTrainIndex(idx);
+                        rotateToCard(idx);
                       }}
                       className={`absolute left-1/2 top-1/2 w-20 h-20 sm:w-36 sm:h-36 rounded-2xl overflow-hidden border-4 bg-white cursor-pointer shadow-premium transition-all duration-500 ring-item-3d ${
                         isVisible
@@ -326,7 +344,7 @@ export default function HomeClient() {
                 <button
                   type="button"
                   onClick={() => {
-                    setTrainIndex((prev) => (prev - 1 + products.length) % products.length);
+                    setTrainStep((prev) => prev - 1);
                   }}
                   className="w-10 h-10 sm:w-12 sm:h-12 bg-white/95 backdrop-blur-sm border border-cream-200 text-cocoa-900 rounded-full flex items-center justify-center shadow-md hover:bg-luxury-gold hover:text-white transition-all duration-300 pointer-events-auto active:scale-90"
                   aria-label="Previous Cake"
@@ -336,7 +354,7 @@ export default function HomeClient() {
                 <button
                   type="button"
                   onClick={() => {
-                    setTrainIndex((prev) => (prev + 1) % products.length);
+                    setTrainStep((prev) => prev + 1);
                   }}
                   className="w-10 h-10 sm:w-12 sm:h-12 bg-white/95 backdrop-blur-sm border border-cream-200 text-cocoa-900 rounded-full flex items-center justify-center shadow-md hover:bg-luxury-gold hover:text-white transition-all duration-300 pointer-events-auto active:scale-90"
                   aria-label="Next Cake"
