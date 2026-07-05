@@ -295,7 +295,7 @@ export default function HomeClient() {
                         setTrainIndex(idx);
                         setAutoRotateTrain(false);
                       }}
-                      className={`absolute left-1/2 top-1/2 w-24 h-24 sm:w-36 sm:h-36 -ml-12 sm:-ml-18 -mt-12 sm:-mt-18 rounded-full overflow-hidden border-4 bg-white cursor-pointer shadow-premium transition-all duration-500 ring-item-3d hover:scale-105 ${
+                      className={`absolute left-1/2 top-1/2 w-24 h-24 sm:w-36 sm:h-36 -ml-12 sm:-ml-18 -mt-12 sm:-mt-18 rounded-2xl overflow-hidden border-4 bg-white cursor-pointer shadow-premium transition-all duration-500 ring-item-3d hover:scale-105 ${
                         isSelected
                           ? 'border-luxury-gold ring-4 ring-luxury-gold/20 scale-102 z-10'
                           : 'border-white opacity-70 hover:opacity-100 scale-95'
