@@ -316,12 +316,12 @@ export default function HomeClient() {
                       onClick={() => {
                         rotateToCard(idx);
                       }}
-                      className={`absolute left-1/2 top-1/2 w-32 h-32 sm:w-56 sm:h-56 rounded-2xl overflow-hidden border-4 bg-white cursor-pointer shadow-premium transition-all duration-500 ring-item-3d ${
+                      className={`absolute left-1/2 top-1/2 w-36 h-36 sm:w-60 sm:h-60 rounded-2xl overflow-hidden border-4 bg-white cursor-pointer shadow-premium transition-all duration-500 ring-item-3d ${
                         isVisible
                           ? isSelected
-                            ? 'border-luxury-gold ring-4 ring-luxury-gold/25 scale-120 z-10 opacity-100 pointer-events-auto shadow-gold-glow'
-                            : 'border-white opacity-40 sm:opacity-60 scale-80 z-0 pointer-events-auto'
-                          : 'opacity-0 pointer-events-none scale-65 z-0'
+                            ? 'border-luxury-gold ring-4 ring-luxury-gold/25 scale-115 z-10 opacity-100 pointer-events-auto shadow-gold-glow'
+                            : 'border-white opacity-40 sm:opacity-60 scale-50 z-0 pointer-events-auto'
+                          : 'opacity-0 pointer-events-none scale-35 z-0'
                       }`}
                       style={{
                         transform: `translate(-50%, -50%) rotateY(${itemAngle}deg) translateZ(var(--radius))`,
