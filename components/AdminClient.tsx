@@ -27,7 +27,7 @@ export default function AdminClient() {
 
   // Search & Filters inside Admin
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
-  const [orderStatusFilter, setOrderStatusFilter] = useState<'All' | 'Pending' | 'In Progress' | 'Completed' | 'Cancelled'>('All');
+  const [orderStatusFilter, setOrderStatusFilter] = useState<'All' | 'Pending' | 'Completed'>('All');
 
   // Modal / Form States
   const [isProductFormOpen, setIsProductFormOpen] = useState(false);
@@ -609,10 +609,8 @@ export default function AdminClient() {
                   className="w-full text-xs py-2.5 px-3 border border-cream-200 focus:outline-none focus:border-luxury-gold rounded-lg cursor-pointer text-cocoa-900 font-medium"
                 >
                   <option value="All">All Status Logs</option>
-                  <option value="Pending">Pending Inquiries</option>
-                  <option value="In Progress">In Progress / Baking</option>
-                  <option value="Completed">Completed / Delivered</option>
-                  <option value="Cancelled">Cancelled</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Completed">Completed</option>
                 </select>
               </div>
             </div>
@@ -635,9 +633,7 @@ export default function AdminClient() {
                           <span className="font-extrabold text-cocoa-900">Order ID: #{order.id}</span>
                           <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
                             order.status === 'Completed' ? 'bg-green-50 text-green-600 border border-green-200' :
-                            order.status === 'Pending' ? 'bg-amber-50 text-amber-500 border border-amber-200' :
-                            order.status === 'Cancelled' ? 'bg-red-50 text-red-500 border border-red-200' :
-                            'bg-blue-50 text-blue-500 border border-blue-200'
+                            'bg-amber-50 text-amber-500 border border-amber-200'
                           }`}>
                             {order.status}
                           </span>
@@ -646,17 +642,6 @@ export default function AdminClient() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="text-cocoa-100 font-bold uppercase text-[9px] tracking-wider">Update Status:</span>
-                        <select
-                          value={order.status}
-                          onChange={(e) => updateOrderStatus(order.id, e.target.value as any)}
-                          className="text-xs py-1.5 px-2 bg-white border border-cream-200 rounded-lg focus:outline-none focus:border-luxury-gold cursor-pointer font-semibold text-cocoa-900"
-                        >
-                          <option value="Pending">Pending</option>
-                          <option value="In Progress">In Progress</option>
-                          <option value="Completed">Completed</option>
-                          <option value="Cancelled">Cancelled</option>
-                        </select>
                         <button
                           onClick={() => { if(confirm("Delete this order record permanently?")) deleteOrder(order.id); }}
                           className="p-1.5 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
@@ -726,6 +711,26 @@ export default function AdminClient() {
                         <div className="border-t border-cream-200 pt-3 flex justify-between items-center bg-cream-50/50 p-3.5 rounded-xl">
                           <span className="text-sm font-bold text-cocoa-900">Grand Total Earned</span>
                           <span className="text-base font-extrabold text-green-700">₹{order.total}</span>
+                        </div>
+
+                        {/* Completed Status Toggle Button */}
+                        <div className="flex justify-end pt-3">
+                          {order.status === 'Pending' ? (
+                            <button
+                              onClick={() => updateOrderStatus(order.id, 'Completed')}
+                              className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all duration-300 shadow-sm active:scale-98"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              Completed
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => updateOrderStatus(order.id, 'Pending')}
+                              className="bg-cream-100 hover:bg-cream-200 text-cocoa-500 text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all duration-300 border border-cream-300 active:scale-98"
+                            >
+                              Reopen Order (Mark Pending)
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>

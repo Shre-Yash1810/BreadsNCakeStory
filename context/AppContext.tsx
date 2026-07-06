@@ -38,7 +38,7 @@ export interface Order {
   notes: string;
   items: OrderItem[];
   total: number;
-  status: 'Pending' | 'In Progress' | 'Completed' | 'Cancelled';
+  status: 'Pending' | 'Completed';
   date: string;
 }
 
