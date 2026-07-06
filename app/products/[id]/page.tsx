@@ -1,7 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { Star, ArrowLeft, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, ShoppingBag } from 'lucide-react';
 import { defaultProducts } from '@/context/productsData';
 
 interface ProductPageProps {
@@ -110,25 +110,6 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               <h1 className="heading-luxury text-2xl sm:text-3xl text-cocoa-900 mb-3 leading-tight">
                 {product.name}
               </h1>
-
-              {/* Rating */}
-              <div className="flex items-center gap-2 mb-6">
-                <div className="flex gap-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-3.5 h-3.5 ${
-                        i < Math.floor(product.rating)
-                          ? 'fill-luxury-gold text-luxury-gold'
-                          : 'text-cream-200 fill-none'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="text-xs text-cocoa-500 font-medium mt-0.5">
-                  {product.rating} ({product.reviewsCount} reviews)
-                </span>
-              </div>
 
               {/* Price */}
               <div className="mb-6">
