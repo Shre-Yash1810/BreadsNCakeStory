@@ -89,7 +89,7 @@ interface AppContextType {
   deleteReview: (reviewId: string) => void;
 }
 
-const defaultProducts: Product[] = [
+export const defaultProducts: Product[] = [
   {
     id: 'prod-1',
     name: 'Golden Glamour Chocolate Cake',

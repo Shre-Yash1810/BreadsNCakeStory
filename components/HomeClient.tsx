@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useApp, Product } from '@/context/AppContext';
 import Navbar from '@/components/Navbar';
 import HeroScene from '@/components/HeroScene';
@@ -12,10 +13,22 @@ import confetti from 'canvas-confetti';
 
 export default function HomeClient() {
   const { products, settings, gallery, addToCart, reviews, addReview, addOrder } = useApp();
+  const searchParams = useSearchParams();
   
   // Modal & Drawer State
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
+
+  // Auto-open product modal based on query param '?open=prod-x'
+  useEffect(() => {
+    const openId = searchParams.get('open');
+    if (openId && products.length > 0) {
+      const prod = products.find((p) => p.id === openId);
+      if (prod) {
+        setActiveProduct(prod);
+      }
+    }
+  }, [searchParams, products]);
   const [selectedCategory, setSelectedCategory] = useState<'All' | 'Birthday' | 'Anniversary' | 'Themed'>('All');
 
   // Dynamic quick-add state to track weight and qty directly on card

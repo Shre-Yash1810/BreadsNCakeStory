@@ -120,15 +120,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         message += `${index + 1}. *${item.name}*\n`;
         message += `   • Qty: ${item.quantity} | Weight: ${item.weight} kg\n`;
         message += `   • Price: ₹${item.price * item.quantity} (₹${item.price} each)\n`;
-        if (item.image) {
-          if (!item.image.startsWith('data:image/')) {
-            const absoluteImageUrl = item.image.startsWith('http')
-              ? item.image
-              : `${window.location.origin}${item.image.startsWith('/') ? '' : '/'}${item.image}`;
-            message += `   • Image Link: ${absoluteImageUrl}\n`;
-          } else {
-            message += `   • Image: [Custom Reference Image Uploaded]\n`;
-          }
+        if (item.image && !item.image.startsWith('data:image/')) {
+          const detailPageUrl = `${window.location.origin}/products/${item.id}`;
+          message += `   • Preview: ${detailPageUrl}\n`;
+        } else if (item.image && item.image.startsWith('data:image/')) {
+          message += `   • Preview: [Custom Reference Image Uploaded]\n`;
         }
       });
       
