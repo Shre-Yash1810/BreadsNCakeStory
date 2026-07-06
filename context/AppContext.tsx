@@ -184,7 +184,7 @@ const defaultSettings: WebsiteSettings = {
   bakeryName: "Breads & CakeStory",
   logoUrl: "/logo.png",
   contactNumber: "9272284438",
-  whatsappNumber: "9272284438",
+  whatsappNumber: "8999880895",
   email: "info@breadsandcakestory.com",
   address: "Bharti vidyapeth dattangr Rd tiranga chowk, opp.Shreeji pure veg Ambegaon pune-46",
   businessHours: "10.30 am to 11.00 pm",
@@ -258,8 +258,16 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     if (storedOrders) setOrders(JSON.parse(storedOrders));
     if (storedSettings) {
       const parsed = JSON.parse(storedSettings);
+      let needsSave = false;
       if (parsed.bakeryName === "Breads& CakeStory") {
         parsed.bakeryName = "Breads & CakeStory";
+        needsSave = true;
+      }
+      if (parsed.whatsappNumber === "9272284438") {
+        parsed.whatsappNumber = "8999880895";
+        needsSave = true;
+      }
+      if (needsSave) {
         localStorage.setItem('bac_settings', JSON.stringify(parsed));
       }
       setSettings(parsed);
