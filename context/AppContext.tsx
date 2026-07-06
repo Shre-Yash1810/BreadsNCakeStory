@@ -181,7 +181,7 @@ const defaultProducts: Product[] = [
 ];
 
 const defaultSettings: WebsiteSettings = {
-  bakeryName: "Breads& CakeStory",
+  bakeryName: "Breads & CakeStory",
   logoUrl: "/logo.png",
   contactNumber: "9272284438",
   whatsappNumber: "9272284438",
@@ -256,7 +256,14 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
 
     if (storedOrders) setOrders(JSON.parse(storedOrders));
-    if (storedSettings) setSettings(JSON.parse(storedSettings));
+    if (storedSettings) {
+      const parsed = JSON.parse(storedSettings);
+      if (parsed.bakeryName === "Breads& CakeStory") {
+        parsed.bakeryName = "Breads & CakeStory";
+        localStorage.setItem('bac_settings', JSON.stringify(parsed));
+      }
+      setSettings(parsed);
+    }
     if (storedGallery) setGallery(JSON.parse(storedGallery));
     else {
       setGallery(defaultGallery);
