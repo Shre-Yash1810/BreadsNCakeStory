@@ -38,7 +38,7 @@ export interface Order {
   notes: string;
   items: OrderItem[];
   total: number;
-  status: 'Pending' | 'Completed';
+  status: 'Pending' | 'Completed' | 'Sold';
   date: string;
 }
 
@@ -68,6 +68,7 @@ interface AppContextType {
   getCartTotal: () => number;
   addOrder: (order: Omit<Order, 'id' | 'date' | 'status'>) => Order;
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
+  updateOrderTotal: (orderId: string, total: number) => void;
   deleteOrder: (orderId: string) => void;
   addProduct: (product: Omit<Product, 'id' | 'rating' | 'reviewsCount'>) => void;
   updateProduct: (product: Product) => void;
@@ -301,6 +302,12 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     );
   };
 
+  const updateOrderTotal = (orderId: string, total: number) => {
+    setOrders((prev) =>
+      prev.map((order) => (order.id === orderId ? { ...order, total } : order))
+    );
+  };
+
   const deleteOrder = (orderId: string) => {
     setOrders((prev) => prev.filter((order) => order.id !== orderId));
   };
@@ -374,6 +381,7 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         getCartTotal,
         addOrder,
         updateOrderStatus,
+        updateOrderTotal,
         deleteOrder,
         addProduct,
         updateProduct,

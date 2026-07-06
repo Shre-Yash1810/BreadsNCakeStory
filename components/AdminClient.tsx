@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useApp, Product, Order } from '@/context/AppContext';
-import { KeyRound, LogOut, LayoutDashboard, ShoppingCart, Cake, Settings, Image as ImageIcon, Plus, Edit3, Trash2, Search, Download, Save, Check } from 'lucide-react';
+import { KeyRound, LogOut, LayoutDashboard, ShoppingCart, Cake, Settings, Image as ImageIcon, Plus, Edit3, Trash2, Search, Download, Save, Check, X } from 'lucide-react';
 
 export default function AdminClient() {
   const {
@@ -27,7 +27,11 @@ export default function AdminClient() {
 
   // Search & Filters inside Admin
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
-  const [orderStatusFilter, setOrderStatusFilter] = useState<'All' | 'Pending' | 'Completed'>('All');
+  const [orderStatusFilter, setOrderStatusFilter] = useState<'All' | 'Pending' | 'Completed' | 'Sold'>('All');
+
+  // Bargain amount editing states
+  const [editingOrderTotalId, setEditingOrderTotalId] = useState<string | null>(null);
+  const [tempOrderTotal, setTempOrderTotal] = useState<string>('');
 
   // Modal / Form States
   const [isProductFormOpen, setIsProductFormOpen] = useState(false);
@@ -198,7 +202,7 @@ export default function AdminClient() {
   });
 
   const totalEarnings = orders
-    .filter(o => o.status === 'Completed')
+    .filter(o => o.status === 'Sold')
     .reduce((sum, o) => sum + o.total, 0);
 
   const pendingCount = orders.filter(o => o.status === 'Pending').length;
@@ -329,10 +333,10 @@ export default function AdminClient() {
             {/* Metrics cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { title: 'Total Sales Revenue', value: `₹${totalEarnings}`, color: 'border-l-green-600', sub: 'Completed orders sum' },
-                { title: 'Total Products', value: products.length, color: 'border-l-luxury-gold', sub: 'Active catalog items' },
+                { title: 'Total Sales Revenue', value: `₹${totalEarnings}`, color: 'border-l-green-600', sub: 'Sum of sold orders' },
                 { title: 'Pending Orders', value: pendingCount, color: 'border-l-amber-500', sub: 'Awaiting confirmation' },
-                { title: 'Completed Orders', value: completedCount, color: 'border-l-blue-600', sub: 'Completed delivery logs' }
+                { title: 'Completed Orders', value: completedCount, color: 'border-l-blue-600', sub: 'Delivered but not paid' },
+                { title: 'Sold Orders', value: orders.filter(o => o.status === 'Sold').length, color: 'border-l-luxury-gold', sub: 'Paid order logs' }
               ].map((stat, i) => (
                 <div key={i} className={`bg-white p-5 rounded-2xl border border-cream-200 border-l-4 ${stat.color} shadow-sm`}>
                   <span className="text-[10px] uppercase font-bold tracking-wider text-cocoa-500 block mb-1">{stat.title}</span>
@@ -611,6 +615,7 @@ export default function AdminClient() {
                   <option value="All">All Status Logs</option>
                   <option value="Pending">Pending</option>
                   <option value="Completed">Completed</option>
+                  <option value="Sold">Sold</option>
                 </select>
               </div>
             </div>
@@ -632,7 +637,8 @@ export default function AdminClient() {
                         <div className="flex items-center gap-2">
                           <span className="font-extrabold text-cocoa-900">Order ID: #{order.id}</span>
                           <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                            order.status === 'Completed' ? 'bg-green-50 text-green-600 border border-green-200' :
+                            order.status === 'Sold' ? 'bg-green-50 text-green-600 border border-green-200' :
+                            order.status === 'Completed' ? 'bg-blue-50 text-blue-500 border border-blue-200' :
                             'bg-amber-50 text-amber-500 border border-amber-200'
                           }`}>
                             {order.status}
@@ -710,19 +716,69 @@ export default function AdminClient() {
 
                         <div className="border-t border-cream-200 pt-3 flex justify-between items-center bg-cream-50/50 p-3.5 rounded-xl">
                           <span className="text-sm font-bold text-cocoa-900">Grand Total Earned</span>
-                          <span className="text-base font-extrabold text-green-700">₹{order.total}</span>
+                          {editingOrderTotalId === order.id ? (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-cocoa-500">₹</span>
+                              <input
+                                type="number"
+                                value={tempOrderTotal}
+                                onChange={(e) => setTempOrderTotal(e.target.value)}
+                                className="w-24 text-xs font-bold px-2 py-1 border border-luxury-gold rounded-lg focus:outline-none bg-white text-cocoa-900"
+                                autoFocus
+                              />
+                              <button
+                                onClick={() => {
+                                  updateOrderTotal(order.id, parseFloat(tempOrderTotal) || 0);
+                                  setEditingOrderTotalId(null);
+                                }}
+                                className="p-1 text-green-600 hover:bg-green-50 rounded"
+                                title="Save"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => setEditingOrderTotalId(null)}
+                                className="p-1 text-red-500 hover:bg-red-50 rounded"
+                                title="Cancel"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 group">
+                              <span className="text-base font-extrabold text-green-700">₹{order.total}</span>
+                              <button
+                                onClick={() => {
+                                  setEditingOrderTotalId(order.id);
+                                  setTempOrderTotal(order.total.toString());
+                                }}
+                                className="p-1 text-cocoa-100 hover:text-luxury-gold rounded transition-colors"
+                                title="Edit Amount (Bargain)"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          )}
                         </div>
 
-                        {/* Completed Status Toggle Button */}
-                        <div className="flex justify-end pt-3">
+                        {/* Order Action Buttons */}
+                        <div className="flex justify-end gap-2.5 pt-3">
                           {order.status === 'Pending' ? (
-                            <button
-                              onClick={() => updateOrderStatus(order.id, 'Completed')}
-                              className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all duration-300 shadow-sm active:scale-98"
-                            >
-                              <Check className="w-3.5 h-3.5" />
-                              Completed
-                            </button>
+                            <>
+                              <button
+                                onClick={() => updateOrderStatus(order.id, 'Completed')}
+                                className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all duration-300 shadow-sm active:scale-98"
+                              >
+                                Completed
+                              </button>
+                              <button
+                                onClick={() => updateOrderStatus(order.id, 'Sold')}
+                                className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all duration-300 shadow-sm active:scale-98"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                                Sold
+                              </button>
+                            </>
                           ) : (
                             <button
                               onClick={() => updateOrderStatus(order.id, 'Pending')}
