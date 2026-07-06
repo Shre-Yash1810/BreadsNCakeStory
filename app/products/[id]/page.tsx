@@ -2,7 +2,7 @@ import React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { Star, ArrowLeft, ShoppingBag } from 'lucide-react';
-import { defaultProducts } from '@/context/AppContext';
+import { defaultProducts } from '@/context/productsData';
 
 interface ProductPageProps {
   params: {
