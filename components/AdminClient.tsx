@@ -62,30 +62,57 @@ export default function AdminClient() {
   };
 
   // Login handler
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginForm.username === 'admin' && loginForm.password === 'admin123') {
-      setIsAuthenticated(true);
-      setLoginError('');
-      // Save session
-      sessionStorage.setItem('bac_authenticated', 'true');
-    } else {
-      setLoginError('Invalid username or password. Please try again.');
+    setLoginError('');
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(loginForm)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setIsAuthenticated(true);
+        // Reload page to re-trigger AppContext fetching of authenticated orders & settings
+        window.location.reload();
+      } else {
+        setLoginError(data.error || 'Invalid username or password. Please try again.');
+      }
+    } catch (err) {
+      setLoginError('An error occurred. Please try again.');
+      console.error('Login error:', err);
     }
   };
 
   // Logout handler
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' });
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
     setIsAuthenticated(false);
-    sessionStorage.removeItem('bac_authenticated');
+    // Reload to clear contextual states
+    window.location.reload();
   };
 
-  // Auto-login from session
+  // Auto-login from session on backend
   useEffect(() => {
-    const auth = sessionStorage.getItem('bac_authenticated');
-    if (auth === 'true') {
-      setIsAuthenticated(true);
-    }
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/admin/check-auth');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated) {
+            setIsAuthenticated(true);
+          }
+        }
+      } catch (err) {
+        console.error('Auth verification error:', err);
+      }
+    };
+    checkAuth();
   }, []);
 
   // Product CRUD submit
@@ -763,7 +790,7 @@ export default function AdminClient() {
 
                         {/* Order Action Buttons */}
                         <div className="flex justify-end gap-2.5 pt-3">
-                          {order.status === 'Pending' ? (
+                          {order.status === 'Pending' && (
                             <>
                               <button
                                 onClick={() => updateOrderStatus(order.id, 'Completed')}
@@ -779,7 +806,25 @@ export default function AdminClient() {
                                 Sold
                               </button>
                             </>
-                          ) : (
+                          )}
+                          {order.status === 'Completed' && (
+                            <>
+                              <button
+                                onClick={() => updateOrderStatus(order.id, 'Pending')}
+                                className="bg-cream-100 hover:bg-cream-200 text-cocoa-500 text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all duration-300 border border-cream-300 active:scale-98"
+                              >
+                                Reopen Order (Mark Pending)
+                              </button>
+                              <button
+                                onClick={() => updateOrderStatus(order.id, 'Sold')}
+                                className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all duration-300 shadow-sm active:scale-98"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                                Sold
+                              </button>
+                            </>
+                          )}
+                          {order.status === 'Sold' && (
                             <button
                               onClick={() => updateOrderStatus(order.id, 'Pending')}
                               className="bg-cream-100 hover:bg-cream-200 text-cocoa-500 text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all duration-300 border border-cream-300 active:scale-98"

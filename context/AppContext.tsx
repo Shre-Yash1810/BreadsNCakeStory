@@ -143,87 +143,48 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load from local storage
+  // Load from API endpoints on mount
   useEffect(() => {
-    const storedProducts = localStorage.getItem('bac_products');
-    const storedOrders = localStorage.getItem('bac_orders');
-    const storedSettings = localStorage.getItem('bac_settings');
-    const storedGallery = localStorage.getItem('bac_gallery');
-    const storedCart = localStorage.getItem('bac_cart');
+    const loadData = async () => {
+      try {
+        const [resProducts, resOrders, resSettings, resReviews, resGallery] = await Promise.all([
+          fetch('/api/products').then((res) => res.json()),
+          fetch('/api/orders').then((res) => res.json()),
+          fetch('/api/settings').then((res) => res.json()),
+          fetch('/api/reviews').then((res) => res.json()),
+          fetch('/api/gallery').then((res) => res.json())
+        ]);
 
-    if (storedProducts) setProducts(JSON.parse(storedProducts));
-    else {
-      setProducts(defaultProducts);
-      localStorage.setItem('bac_products', JSON.stringify(defaultProducts));
-    }
-
-    if (storedOrders) setOrders(JSON.parse(storedOrders));
-    if (storedSettings) {
-      const parsed = JSON.parse(storedSettings);
-      let needsSave = false;
-      if (parsed.bakeryName === "Breads& CakeStory") {
-        parsed.bakeryName = "Breads & CakeStory";
-        needsSave = true;
+        if (Array.isArray(resProducts)) setProducts(resProducts);
+        if (Array.isArray(resOrders)) setOrders(resOrders);
+        if (resSettings && typeof resSettings === 'object') setSettings(resSettings);
+        if (Array.isArray(resReviews)) setReviews(resReviews);
+        if (Array.isArray(resGallery)) setGallery(resGallery);
+      } catch (err) {
+        console.error("Error loading database data", err);
+      } finally {
+        // Retrieve cart from local storage
+        const storedCart = localStorage.getItem('bac_cart');
+        if (storedCart) {
+          try {
+            setCart(JSON.parse(storedCart));
+          } catch (e) {
+            console.error("Error parsing cart from local storage", e);
+          }
+        }
+        setIsLoaded(true);
       }
-      if (parsed.whatsappNumber === "9272284438") {
-        parsed.whatsappNumber = "8999880895";
-        needsSave = true;
-      }
-      if (needsSave) {
-        localStorage.setItem('bac_settings', JSON.stringify(parsed));
-      }
-      setSettings(parsed);
-    }
-    if (storedGallery) setGallery(JSON.parse(storedGallery));
-    else {
-      setGallery(defaultGallery);
-      localStorage.setItem('bac_gallery', JSON.stringify(defaultGallery));
-    }
-
-    const storedReviews = localStorage.getItem('bac_reviews');
-    if (storedReviews) setReviews(JSON.parse(storedReviews));
-    else {
-      setReviews(defaultReviews);
-      localStorage.setItem('bac_reviews', JSON.stringify(defaultReviews));
-    }
-
-    if (storedCart) setCart(JSON.parse(storedCart));
-    
-    setIsLoaded(true);
+    };
+    loadData();
   }, []);
 
-  // Save changes to local storage when state updates
-  useEffect(() => {
-    if (!isLoaded) return;
-    localStorage.setItem('bac_products', JSON.stringify(products));
-  }, [products, isLoaded]);
-
-  useEffect(() => {
-    if (!isLoaded) return;
-    localStorage.setItem('bac_orders', JSON.stringify(orders));
-  }, [orders, isLoaded]);
-
-  useEffect(() => {
-    if (!isLoaded) return;
-    localStorage.setItem('bac_settings', JSON.stringify(settings));
-  }, [settings, isLoaded]);
-
-  useEffect(() => {
-    if (!isLoaded) return;
-    localStorage.setItem('bac_gallery', JSON.stringify(gallery));
-  }, [gallery, isLoaded]);
-
+  // Save changes to local storage only for cart
   useEffect(() => {
     if (!isLoaded) return;
     localStorage.setItem('bac_cart', JSON.stringify(cart));
   }, [cart, isLoaded]);
 
-  useEffect(() => {
-    if (!isLoaded) return;
-    localStorage.setItem('bac_reviews', JSON.stringify(reviews));
-  }, [reviews, isLoaded]);
-
-  // Cart operations
+  // Cart operations (purely local/client side)
   const addToCart = (product: Product, quantity: number, weight: number) => {
     setCart((prevCart) => {
       const existingItemIndex = prevCart.findIndex(
@@ -293,6 +254,13 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       status: 'Pending'
     };
     setOrders((prev) => [newOrder, ...prev]);
+
+    fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newOrder)
+    }).catch((err) => console.error("Error creating order on server:", err));
+
     return newOrder;
   };
 
@@ -300,16 +268,32 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setOrders((prev) =>
       prev.map((order) => (order.id === orderId ? { ...order, status } : order))
     );
+
+    fetch(`/api/orders/${orderId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    }).catch((err) => console.error("Error updating order status on server:", err));
   };
 
   const updateOrderTotal = (orderId: string, total: number) => {
     setOrders((prev) =>
       prev.map((order) => (order.id === orderId ? { ...order, total } : order))
     );
+
+    fetch(`/api/orders/${orderId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ total })
+    }).catch((err) => console.error("Error updating order total on server:", err));
   };
 
   const deleteOrder = (orderId: string) => {
     setOrders((prev) => prev.filter((order) => order.id !== orderId));
+
+    fetch(`/api/orders/${orderId}`, {
+      method: 'DELETE'
+    }).catch((err) => console.error("Error deleting order on server:", err));
   };
 
   // Products operations
@@ -321,32 +305,67 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       reviewsCount: 0
     };
     setProducts((prev) => [...prev, newProduct]);
+
+    fetch('/api/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newProduct)
+    }).catch((err) => console.error("Error creating product on server:", err));
   };
 
   const updateProduct = (updatedProduct: Product) => {
     setProducts((prev) =>
       prev.map((prod) => (prod.id === updatedProduct.id ? updatedProduct : prod))
     );
+
+    fetch(`/api/products/${updatedProduct.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedProduct)
+    }).catch((err) => console.error("Error updating product on server:", err));
   };
 
   const deleteProduct = (productId: string) => {
     setProducts((prev) => prev.filter((prod) => prod.id !== productId));
-    // Also remove from cart if present
     setCart((prev) => prev.filter((item) => item.product.id !== productId));
+
+    fetch(`/api/products/${productId}`, {
+      method: 'DELETE'
+    }).catch((err) => console.error("Error deleting product on server:", err));
   };
 
   // Settings
   const updateSettings = (newSettings: Partial<WebsiteSettings>) => {
-    setSettings((prev) => ({ ...prev, ...newSettings }));
+    setSettings((prev) => {
+      const updated = { ...prev, ...newSettings };
+      
+      fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      }).catch((err) => console.error("Error updating settings on server:", err));
+      
+      return updated;
+    });
   };
 
   // Gallery management
   const addGalleryImage = (imageUrl: string) => {
     setGallery((prev) => [imageUrl, ...prev]);
+
+    fetch('/api/gallery', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageUrl })
+    }).catch((err) => console.error("Error adding gallery image on server:", err));
   };
 
   const removeGalleryImage = (imageUrl: string) => {
     setGallery((prev) => prev.filter((img) => img !== imageUrl));
+
+    fetch(`/api/gallery?imageUrl=${encodeURIComponent(imageUrl)}`, {
+      method: 'DELETE'
+    }).catch((err) => console.error("Error deleting gallery image on server:", err));
   };
 
   const addReview = (reviewData: Omit<Review, 'id' | 'date'>) => {
@@ -360,10 +379,20 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       })
     };
     setReviews((prev) => [newReview, ...prev]);
+
+    fetch('/api/reviews', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newReview)
+    }).catch((err) => console.error("Error creating review on server:", err));
   };
 
   const deleteReview = (reviewId: string) => {
     setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+
+    fetch(`/api/reviews/${reviewId}`, {
+      method: 'DELETE'
+    }).catch((err) => console.error("Error deleting review on server:", err));
   };
 
   return (

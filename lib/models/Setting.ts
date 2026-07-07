@@ -1,0 +1,32 @@
+import mongoose, { Schema, Document } from 'mongoose';
+
+export interface ISetting extends Document {
+  bakeryName: string;
+  logoUrl: string;
+  contactNumber: string;
+  whatsappNumber: string;
+  email: string;
+  address: string;
+  businessHours: string;
+  heroTitle: string;
+  heroSubtitle: string;
+}
+
+const SettingSchema: Schema = new Schema(
+  {
+    bakeryName: { type: String, required: true },
+    logoUrl: { type: String, default: '' },
+    contactNumber: { type: String, required: true },
+    whatsappNumber: { type: String, required: true },
+    email: { type: String, default: '' },
+    address: { type: String, required: true },
+    businessHours: { type: String, default: '' },
+    heroTitle: { type: String, required: true },
+    heroSubtitle: { type: String, required: true }
+  },
+  {
+    timestamps: true
+  }
+);
+
+export default mongoose.models.Setting || mongoose.model<ISetting>('Setting', SettingSchema);
