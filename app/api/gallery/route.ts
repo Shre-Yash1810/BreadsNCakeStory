@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Gallery from '@/lib/models/Gallery';
 import { verifyAdmin } from '@/lib/auth';
+import { isBase64Image, uploadToCloudinary } from '@/lib/cloudinary';
 
 const defaultGallery = [
   '/images/cake_birthday_1.png',
@@ -42,10 +43,15 @@ export async function POST(request: Request) {
     }
 
     await dbConnect();
-    const { imageUrl } = await request.json();
+    let { imageUrl } = await request.json();
     
     if (!imageUrl) {
       return NextResponse.json({ error: 'imageUrl is required' }, { status: 400 });
+    }
+    
+    // Upload gallery image to Cloudinary if base64 encoded
+    if (isBase64Image(imageUrl)) {
+      imageUrl = await uploadToCloudinary(imageUrl);
     }
     
     const newImage = new Gallery({ imageUrl });

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Setting from '@/lib/models/Setting';
 import { verifyAdmin } from '@/lib/auth';
+import { isBase64Image, uploadToCloudinary } from '@/lib/cloudinary';
 
 const defaultSettings = {
   bakeryName: "Breads & CakeStory",
@@ -44,6 +45,11 @@ export async function PUT(request: Request) {
 
     await dbConnect();
     const body = await request.json();
+    
+    // Upload logo to Cloudinary if base64 encoded
+    if (body.logoUrl && isBase64Image(body.logoUrl)) {
+      body.logoUrl = await uploadToCloudinary(body.logoUrl);
+    }
     
     const settings = await Setting.findOneAndUpdate(
       {},
