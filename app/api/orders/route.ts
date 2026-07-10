@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/lib/models/Order';
 import { verifyAdmin } from '@/lib/auth';
+import { sendWhatsAppNotification } from '@/lib/whatsapp';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +28,18 @@ export async function POST(request: Request) {
     
     const newOrder = new Order(body);
     await newOrder.save();
+    
+    // Dispatch automated WhatsApp notification asynchronously to avoid blocking checkout completion
+    try {
+      await sendWhatsAppNotification(
+        newOrder.whatsapp,
+        newOrder.customerName,
+        newOrder.id,
+        newOrder.total
+      );
+    } catch (err) {
+      console.error('Failed to trigger automated WhatsApp notification:', err);
+    }
     
     return NextResponse.json(newOrder, { status: 201 });
   } catch (error: any) {

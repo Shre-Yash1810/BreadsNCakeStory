@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/lib/models/Order';
 import { verifyAdmin } from '@/lib/auth';
+import { sendOrderCompletedNotification, sendOrderSoldNotification } from '@/lib/whatsapp';
 
 export async function PUT(
   request: Request,
@@ -16,14 +17,39 @@ export async function PUT(
     const id = params.id;
     const body = await request.json();
     
+    // Fetch current order to detect status transitions
+    const existingOrder = await Order.findOne({ id });
+    if (!existingOrder) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
+    const previousStatus = existingOrder.status;
+    
     const updatedOrder = await Order.findOneAndUpdate(
       { id },
       { $set: body },
       { new: true }
     );
     
-    if (!updatedOrder) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    // Trigger WhatsApp notifications on status transitions
+    if (body.status && body.status !== previousStatus) {
+      try {
+        if (body.status === 'Completed') {
+          await sendOrderCompletedNotification(
+            updatedOrder.whatsapp,
+            updatedOrder.customerName,
+            updatedOrder.id
+          );
+        } else if (body.status === 'Sold') {
+          await sendOrderSoldNotification(
+            updatedOrder.whatsapp,
+            updatedOrder.customerName,
+            updatedOrder.id
+          );
+        }
+      } catch (err) {
+        console.error('Failed to send status change WhatsApp notification:', err);
+      }
     }
     
     return NextResponse.json(updatedOrder);

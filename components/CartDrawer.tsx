@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useApp, CartItem } from '@/context/AppContext';
-import { X, Plus, Minus, Trash2, Send, ShoppingCart } from 'lucide-react';
+import { X, Plus, Minus, Trash2, Send, ShoppingCart, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
@@ -28,15 +28,18 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     whatsapp: '',
     address: '',
     landmark: '',
-    notes: ''
+    notes: '',
+    deliveryDate: '',
+    eventType: 'General'
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isOrderSuccess, setIsOrderSuccess] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setCheckoutForm((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
@@ -62,6 +65,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     if (!checkoutForm.whatsapp.trim()) newErrors.whatsapp = 'WhatsApp number is required';
     else if (!/^\d{10}$/.test(checkoutForm.whatsapp.trim())) newErrors.whatsapp = 'Enter a valid 10-digit number';
 
+    if (!checkoutForm.deliveryDate) newErrors.deliveryDate = 'Delivery date is required';
     if (!checkoutForm.address.trim()) newErrors.address = 'Delivery address is required';
 
     setErrors(newErrors);
@@ -88,7 +92,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
       const grandTotal = getCartTotal();
 
       // 2. Add order to internal AppState/localStorage
-      const order = addOrder({
+      addOrder({
         customerName: checkoutForm.name,
         mobile: checkoutForm.mobile,
         whatsapp: checkoutForm.whatsapp,
@@ -96,55 +100,12 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         landmark: checkoutForm.landmark,
         notes: checkoutForm.notes,
         items: formattedItems,
-        total: grandTotal
+        total: grandTotal,
+        deliveryDate: new Date(checkoutForm.deliveryDate).toISOString(),
+        eventType: checkoutForm.eventType as any
       });
 
-      // 3. Format WhatsApp Message
-      let message = `🍰 *New Order - ${settings.bakeryName}* 🍰\n`;
-      message += `==========================\n\n`;
-      message += `👤 *Customer Details:*\n`;
-      message += `• *Name:* ${checkoutForm.name}\n`;
-      message += `• *Mobile:* ${checkoutForm.mobile}\n`;
-      message += `• *WhatsApp:* ${checkoutForm.whatsapp}\n`;
-      message += `• *Delivery Address:* ${checkoutForm.address}\n`;
-      if (checkoutForm.landmark) {
-        message += `• *Landmark:* ${checkoutForm.landmark}\n`;
-      }
-      if (checkoutForm.notes) {
-        message += `• *Notes:* ${checkoutForm.notes}\n`;
-      }
-      message += `\n`;
-      message += `🛒 *Ordered Products:*\n`;
-      
-      formattedItems.forEach((item, index) => {
-        message += `${index + 1}. *${item.name}*\n`;
-        message += `   • Qty: ${item.quantity} | Weight: ${item.weight} kg\n`;
-        message += `   • Price: ₹${item.price * item.quantity} (₹${item.price} each)\n`;
-        if (item.image && !item.image.startsWith('data:image/')) {
-          const detailPageUrl = `${window.location.origin}/products/${item.id}`;
-          message += `   • Preview: ${detailPageUrl}\n`;
-        } else if (item.image && item.image.startsWith('data:image/')) {
-          message += `   • Preview: [Custom Reference Image Uploaded]\n`;
-        }
-      });
-      
-      message += `\n`;
-      message += `💰 *Grand Total: ₹${grandTotal}*\n\n`;
-      message += `==========================\n`;
-      message += `*Status:* Order request generated. Thank you!\n`;
-
-      // 4. Encode message for URL
-      const encodedText = encodeURIComponent(message);
-      
-      // Clean owner number: prepend +91 if 10-digit
-      let ownerNum = settings.whatsappNumber;
-      if (ownerNum.length === 10) {
-        ownerNum = `91${ownerNum}`;
-      }
-
-      const whatsappUrl = `https://api.whatsapp.com/send?phone=${ownerNum}&text=${encodedText}`;
-
-      // 5. Trigger confetti celebration!
+      // 3. Trigger confetti celebration!
       confetti({
         particleCount: 150,
         spread: 80,
@@ -152,7 +113,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         colors: ['#D4AF37', '#C5A880', '#3E2723', '#FAF7F2']
       });
 
-      // 6. Reset cart & forms, redirect user
+      // 4. Reset forms and transition to premium success screen
       clearCart();
       setCheckoutForm({
         name: '',
@@ -160,12 +121,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         whatsapp: '',
         address: '',
         landmark: '',
-        notes: ''
+        notes: '',
+        deliveryDate: '',
+        eventType: 'General'
       });
-      onClose();
-
-      // Open WhatsApp link in new tab
-      window.open(whatsappUrl, '_blank');
+      setIsOrderSuccess(true);
     } catch (err) {
       console.error(err);
     } finally {
@@ -211,7 +171,30 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
 
           {/* Cart Contents */}
           <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-            {cart.length === 0 ? (
+            {isOrderSuccess ? (
+              <div className="h-full flex flex-col items-center justify-center text-center py-16 px-4">
+                <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-6 border border-green-200 shadow-sm mx-auto">
+                  <Check className="w-10 h-10 text-green-600" />
+                </div>
+                <h3 className="heading-luxury text-2xl font-bold text-cocoa-900 mb-3">Order Confirmed!</h3>
+                <div className="w-12 h-[2px] bg-luxury-gold mx-auto mb-4" />
+                <p className="text-sm text-cocoa-500 max-w-sm mb-2 leading-relaxed">
+                  Your premium cake order request has been successfully registered in our kitchen!
+                </p>
+                <p className="text-xs text-luxury-gold font-semibold max-w-xs mb-8">
+                  We've sent an automated confirmation message directly to your WhatsApp number.
+                </p>
+                <button
+                  onClick={() => {
+                    setIsOrderSuccess(false);
+                    onClose();
+                  }}
+                  className="w-full bg-gold-gradient text-white font-bold py-3.5 rounded-xl shadow-gold-glow hover:opacity-95 transition-all duration-300"
+                >
+                  Return to Storefront
+                </button>
+              </div>
+            ) : cart.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center py-20">
                 <div className="w-20 h-20 bg-cream-100 rounded-full flex items-center justify-center mb-4">
                   <ShoppingCart className="w-8 h-8 text-luxury-gold opacity-50" />
@@ -347,6 +330,41 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                           placeholder="WhatsApp number"
                         />
                         {errors.whatsapp && <p className="text-red-500 text-[10px] mt-0.5 font-medium">{errors.whatsapp}</p>}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">
+                          Delivery Date
+                        </label>
+                        <input
+                          type="date"
+                          name="deliveryDate"
+                          value={checkoutForm.deliveryDate}
+                          onChange={handleInputChange}
+                          min={new Date().toISOString().split('T')[0]}
+                          className="w-full text-sm py-2.5 px-3 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium cursor-pointer"
+                        />
+                        {errors.deliveryDate && <p className="text-red-500 text-[10px] mt-0.5 font-medium">{errors.deliveryDate}</p>}
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">
+                          Celebration Event
+                        </label>
+                        <select
+                          name="eventType"
+                          value={checkoutForm.eventType}
+                          onChange={handleInputChange}
+                          className="w-full text-sm py-2.5 px-3 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium cursor-pointer"
+                        >
+                          <option value="General">General / No Event</option>
+                          <option value="Birthday">Birthday</option>
+                          <option value="Anniversary">Anniversary</option>
+                          <option value="Baby Shower">Baby Shower</option>
+                          <option value="Corporate">Corporate Event</option>
+                          <option value="Other">Other Celebration</option>
+                        </select>
                       </div>
                     </div>
 

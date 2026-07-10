@@ -40,6 +40,8 @@ export interface Order {
   total: number;
   status: 'Pending' | 'Completed' | 'Sold';
   date: string;
+  deliveryDate: string; // ISO String format for transfer
+  eventType: 'Birthday' | 'Anniversary' | 'Baby Shower' | 'Corporate' | 'Other' | 'General';
 }
 
 export interface WebsiteSettings {
