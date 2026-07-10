@@ -55,7 +55,6 @@ export default function HomeClient() {
   // Review form states
   const [reviewForm, setReviewForm] = useState({
     name: '',
-    role: '',
     quote: '',
     rating: 5
   });
@@ -116,12 +115,11 @@ export default function HomeClient() {
 
     addReview({
       name: reviewForm.name,
-      role: reviewForm.role.trim() || 'Customer',
       quote: reviewForm.quote,
       rating: reviewForm.rating
     });
 
-    setReviewForm({ name: '', role: '', quote: '', rating: 5 });
+    setReviewForm({ name: '', quote: '', rating: 5 });
     setReviewErrors({});
     setReviewSubmitSuccess(true);
     setTimeout(() => setReviewSubmitSuccess(false), 3000);
@@ -275,19 +273,16 @@ export default function HomeClient() {
   const testimonials = [
     {
       name: 'Rohan Deshmukh',
-      role: 'Software Architect',
       quote: 'We ordered the Golden Glamour Chocolate Cake for my daughter\'s birthday, and it was the highlight of the party! Breads & CakeStory design sense is unmatched. Elegant, not too sweet, and 100% pure vegetarian.',
       rating: 5
     },
     {
       name: 'Pooja Kulkarni',
-      role: 'Creative Director',
       quote: 'Absolute masterpiece. The Red Velvet Bloom Cake for our anniversary looked too beautiful to cut, but tasted even better! Extremely premium delivery service and custom inquiries are handled with great detail on WhatsApp.',
       rating: 5
     },
     {
       name: 'Aditya Ranade',
-      role: 'Event Designer',
       quote: 'If you want a cake that looks like a work of art and tastes like heaven, this is the place. Their themed galaxy cake mirror glaze was flawless. The design detail was spectacular and they are very prompt with WhatsApp responses.',
       rating: 5
     }

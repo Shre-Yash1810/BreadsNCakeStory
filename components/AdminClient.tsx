@@ -232,6 +232,19 @@ export default function AdminClient() {
     .filter(o => o.status === 'Sold')
     .reduce((sum, o) => sum + o.total, 0);
 
+  const monthlyEarnings = orders
+    .filter(o => {
+      if (o.status !== 'Sold') return false;
+      try {
+        const orderDate = (o as any).createdAt ? new Date((o as any).createdAt) : new Date(o.date);
+        const now = new Date();
+        return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
+      } catch (e) {
+        return false;
+      }
+    })
+    .reduce((sum, o) => sum + o.total, 0);
+
   const pendingCount = orders.filter(o => o.status === 'Pending').length;
   const completedCount = orders.filter(o => o.status === 'Completed').length;
 
@@ -358,9 +371,10 @@ export default function AdminClient() {
             </div>
 
             {/* Metrics cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {[
                 { title: 'Total Sales Revenue', value: `₹${totalEarnings}`, color: 'border-l-green-600', sub: 'Sum of sold orders' },
+                { title: 'Monthly Revenue', value: `₹${monthlyEarnings}`, color: 'border-l-emerald-500', sub: 'Current month sales' },
                 { title: 'Pending Orders', value: pendingCount, color: 'border-l-amber-500', sub: 'Awaiting confirmation' },
                 { title: 'Completed Orders', value: completedCount, color: 'border-l-blue-600', sub: 'Delivered but not paid' },
                 { title: 'Sold Orders', value: orders.filter(o => o.status === 'Sold').length, color: 'border-l-luxury-gold', sub: 'Paid order logs' }
@@ -661,7 +675,7 @@ export default function AdminClient() {
                   >
                     <div className="bg-cream-50/50 p-4 border-b border-cream-100 flex flex-col sm:flex-row justify-between gap-3 text-xs">
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-extrabold text-cocoa-900">Order ID: #{order.id}</span>
                           <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
                             order.status === 'Sold' ? 'bg-green-50 text-green-600 border border-green-200' :
@@ -670,6 +684,15 @@ export default function AdminClient() {
                           }`}>
                             {order.status}
                           </span>
+                          {order.homeDelivery ? (
+                            <span className="px-2.5 py-0.5 bg-luxury-champagne text-luxury-gold border border-luxury-gold/20 rounded-full text-[9px] font-bold uppercase tracking-wider">
+                              🚚 Home Delivery (+₹{order.deliveryCharge || 50})
+                            </span>
+                          ) : (
+                            <span className="px-2.5 py-0.5 bg-cream-100 text-cocoa-500 border border-cream-200 rounded-full text-[9px] font-bold uppercase tracking-wider">
+                              🏪 Store Pickup
+                            </span>
+                          )}
                         </div>
                         <div className="text-[10px] text-cocoa-100 font-medium mt-0.5">Placed: {order.date}</div>
                       </div>

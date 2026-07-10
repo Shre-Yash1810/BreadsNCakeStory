@@ -8,8 +8,6 @@ export interface IProduct extends Document {
   image: string;
   images: string[];
   category: 'Birthday' | 'Anniversary' | 'Themed';
-  rating: number;
-  reviewsCount: number;
 }
 
 const ProductSchema: Schema = new Schema(
@@ -20,9 +18,7 @@ const ProductSchema: Schema = new Schema(
     price: { type: Number, required: true },
     image: { type: String, required: true },
     images: { type: [String], default: [] },
-    category: { type: String, required: true, enum: ['Birthday', 'Anniversary', 'Themed'] },
-    rating: { type: Number, default: 5.0 },
-    reviewsCount: { type: Number, default: 0 }
+    category: { type: String, required: true, enum: ['Birthday', 'Anniversary', 'Themed'] }
   },
   {
     timestamps: true

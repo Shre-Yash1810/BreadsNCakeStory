@@ -33,6 +33,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     eventType: 'General'
   });
 
+  const [homeDelivery, setHomeDelivery] = useState(false);
+  const DELIVERY_CHARGE = 50;
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isOrderSuccess, setIsOrderSuccess] = useState(false);
@@ -66,7 +69,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     else if (!/^\d{10}$/.test(checkoutForm.whatsapp.trim())) newErrors.whatsapp = 'Enter a valid 10-digit number';
 
     if (!checkoutForm.deliveryDate) newErrors.deliveryDate = 'Delivery date is required';
-    if (!checkoutForm.address.trim()) newErrors.address = 'Delivery address is required';
+    if (homeDelivery && !checkoutForm.address.trim()) newErrors.address = 'Delivery address is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -89,20 +92,22 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         image: item.product.image
       }));
 
-      const grandTotal = getCartTotal();
+      const grandTotal = getCartTotal() + (homeDelivery ? DELIVERY_CHARGE : 0);
 
       // 2. Add order to internal AppState/localStorage
       addOrder({
         customerName: checkoutForm.name,
         mobile: checkoutForm.mobile,
         whatsapp: checkoutForm.whatsapp,
-        address: checkoutForm.address,
-        landmark: checkoutForm.landmark,
+        address: homeDelivery ? checkoutForm.address : 'Store Pickup',
+        landmark: homeDelivery ? checkoutForm.landmark : '',
         notes: checkoutForm.notes,
         items: formattedItems,
         total: grandTotal,
         deliveryDate: new Date(checkoutForm.deliveryDate).toISOString(),
-        eventType: checkoutForm.eventType as any
+        eventType: checkoutForm.eventType as any,
+        homeDelivery,
+        deliveryCharge: homeDelivery ? DELIVERY_CHARGE : 0
       });
 
       // 3. Trigger confetti celebration!
@@ -125,6 +130,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         deliveryDate: '',
         eventType: 'General'
       });
+      setHomeDelivery(false);
       setIsOrderSuccess(true);
     } catch (err) {
       console.error(err);
@@ -368,34 +374,61 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">
-                        Delivery Address
-                      </label>
-                      <textarea
-                        name="address"
-                        value={checkoutForm.address}
-                        onChange={handleInputChange}
-                        rows={2}
-                        className="w-full text-sm py-2.5 px-3 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium resize-none"
-                        placeholder="Complete residential address"
-                      />
-                      {errors.address && <p className="text-red-500 text-[10px] mt-0.5 font-medium">{errors.address}</p>}
+                    {/* Home Delivery Toggle */}
+                    <div className="bg-cream-100/30 p-4 rounded-xl border border-cream-200 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-xs font-bold text-cocoa-900 uppercase tracking-wider block">Home Delivery</span>
+                          <span className="text-[10px] text-cocoa-500 block">Deliver to your doorstep (Charges: ₹{DELIVERY_CHARGE})</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setHomeDelivery(!homeDelivery)}
+                          className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                            homeDelivery ? 'bg-luxury-gold' : 'bg-cream-300'
+                          }`}
+                        >
+                          <span
+                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                              homeDelivery ? 'translate-x-5' : 'translate-x-0'
+                            }`}
+                          />
+                        </button>
+                      </div>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">
-                        Landmark <span className="text-[10px] text-cocoa-100 italic">(Optional)</span>
-                      </label>
-                      <input
-                        type="text"
-                        name="landmark"
-                        value={checkoutForm.landmark}
-                        onChange={handleInputChange}
-                        className="w-full text-sm py-2.5 px-3 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium"
-                        placeholder="e.g. Near Tiranga Chowk"
-                      />
-                    </div>
+                    {homeDelivery && (
+                      <>
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">
+                            Delivery Address
+                          </label>
+                          <textarea
+                            name="address"
+                            value={checkoutForm.address}
+                            onChange={handleInputChange}
+                            rows={2}
+                            className="w-full text-sm py-2.5 px-3 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium resize-none"
+                            placeholder="Complete residential address"
+                          />
+                          {errors.address && <p className="text-red-500 text-[10px] mt-0.5 font-medium">{errors.address}</p>}
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">
+                            Landmark <span className="text-[10px] text-cocoa-100 italic">(Optional)</span>
+                          </label>
+                          <input
+                            type="text"
+                            name="landmark"
+                            value={checkoutForm.landmark}
+                            onChange={handleInputChange}
+                            className="w-full text-sm py-2.5 px-3 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium"
+                            placeholder="e.g. Near Tiranga Chowk"
+                          />
+                        </div>
+                      </>
+                    )}
 
                     <div>
                       <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">
@@ -413,20 +446,39 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
 
                     {/* Submit Order Details */}
                     <div className="border-t border-cream-200 pt-4 mt-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-sm font-semibold text-cocoa-500">Order Subtotal</span>
-                        <span className="text-lg font-extrabold text-cocoa-900">₹{getCartTotal()}</span>
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-center justify-between text-xs font-semibold text-cocoa-500">
+                          <span>Items Subtotal</span>
+                          <span>₹{getCartTotal()}</span>
+                        </div>
+                        {homeDelivery && (
+                          <div className="flex items-center justify-between text-xs font-semibold text-cocoa-500">
+                            <span>Delivery Charges</span>
+                            <span>₹{DELIVERY_CHARGE}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between border-t border-cream-100 pt-2">
+                          <span className="text-sm font-bold text-cocoa-900">Grand Total</span>
+                          <span className="text-lg font-extrabold text-cocoa-900">
+                            ₹{getCartTotal() + (homeDelivery ? DELIVERY_CHARGE : 0)}
+                          </span>
+                        </div>
                       </div>
+
+                      {/* Cancellation warning note */}
+                      <p className="text-[10px] font-semibold text-red-600 bg-red-50 border border-red-100 p-2.5 rounded-lg mb-4 text-center leading-relaxed">
+                        ⚠️ <strong>Cancellation Policy:</strong> In case of order cancellation, cancellation charges may apply.
+                      </p>
 
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-gold-gradient text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-gold-glow hover:opacity-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed active:scale-98"
+                        className="w-full bg-gold-gradient text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-gold-glow hover:opacity-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed active:scale-98 text-sm"
                       >
                         <Send className="w-4 h-4" />
                         {isSubmitting ? 'Processing...' : 'Place Order via WhatsApp'}
                       </button>
-                      <p className="text-[10px] text-center text-cocoa-100 mt-2.5">
+                      <p className="text-[9px] text-center text-cocoa-100 mt-2">
                         *Order request will be generated and WhatsApp will open to finalise order dispatch with the owner.
                       </p>
                     </div>
