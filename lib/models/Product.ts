@@ -7,7 +7,7 @@ export interface IProduct extends Document {
   price: number;
   image: string;
   images: string[];
-  category: 'Birthday' | 'Anniversary' | 'Themed';
+  category: string;
 }
 
 const ProductSchema: Schema = new Schema(

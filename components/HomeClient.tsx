@@ -29,7 +29,7 @@ export default function HomeClient() {
       }
     }
   }, [searchParams, products]);
-  const [selectedCategory, setSelectedCategory] = useState<'All' | 'Birthday' | 'Anniversary' | 'Themed'>('All');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   // Dynamic quick-add state to track weight and qty directly on card
   const [cardStates, setCardStates] = useState<Record<string, { weight: number; qty: number }>>({});
@@ -419,7 +419,7 @@ export default function HomeClient() {
 
           {/* Category Tabs */}
           <div className="flex justify-center gap-2 mb-10 overflow-x-auto pb-2 px-4 scrollbar-hide">
-            {(['All', 'Birthday', 'Anniversary', 'Themed'] as const).map((cat) => (
+            {['All', ...Array.from(new Set(['Birthday', 'Anniversary', 'Themed', ...products.map(p => p.category)]))].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}

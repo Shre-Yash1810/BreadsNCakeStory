@@ -36,11 +36,13 @@ export default function AdminClient() {
   // Modal / Form States
   const [isProductFormOpen, setIsProductFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isNewCategoryMode, setIsNewCategoryMode] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [productForm, setProductForm] = useState({
     name: '',
     description: '',
     price: '',
-    category: 'Birthday' as Product['category'],
+    category: 'Birthday',
     image: ''
   });
   
@@ -125,6 +127,12 @@ export default function AdminClient() {
 
     const priceNum = parseFloat(productForm.price);
     const imgUrl = productForm.image || '/images/cake_birthday_1.png';
+    const categoryVal = isNewCategoryMode ? newCategoryName.trim() : productForm.category;
+
+    if (!categoryVal) {
+      alert("Please select or enter a category.");
+      return;
+    }
 
     if (editingProduct) {
       updateProduct({
@@ -132,7 +140,7 @@ export default function AdminClient() {
         name: productForm.name,
         description: productForm.description,
         price: priceNum,
-        category: productForm.category,
+        category: categoryVal,
         image: imgUrl
       });
     } else {
@@ -140,7 +148,7 @@ export default function AdminClient() {
         name: productForm.name,
         description: productForm.description,
         price: priceNum,
-        category: productForm.category,
+        category: categoryVal,
         image: imgUrl,
         images: [imgUrl]
       });
@@ -149,6 +157,8 @@ export default function AdminClient() {
     setIsProductFormOpen(false);
     setEditingProduct(null);
     setProductForm({ name: '', description: '', price: '', category: 'Birthday', image: '' });
+    setIsNewCategoryMode(false);
+    setNewCategoryName('');
   };
 
   const startEditProduct = (prod: Product) => {
@@ -160,6 +170,8 @@ export default function AdminClient() {
       category: prod.category,
       image: prod.image
     });
+    setIsNewCategoryMode(false);
+    setNewCategoryName('');
     setIsProductFormOpen(true);
   };
 
@@ -451,6 +463,8 @@ export default function AdminClient() {
                 onClick={() => {
                   setEditingProduct(null);
                   setProductForm({ name: '', description: '', price: '', category: 'Birthday', image: '' });
+                  setIsNewCategoryMode(false);
+                  setNewCategoryName('');
                   setIsProductFormOpen(true);
                 }}
                 className="bg-gold-gradient hover:opacity-95 text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 shadow-gold-glow text-xs"
@@ -543,15 +557,47 @@ export default function AdminClient() {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">Category</label>
-                        <select
-                          value={productForm.category}
-                          onChange={(e) => setProductForm(prev => ({ ...prev, category: e.target.value as any }))}
-                          className="w-full text-xs py-2 px-2 border border-cream-200 rounded-lg focus:outline-none focus:border-luxury-gold cursor-pointer"
-                        >
-                          <option value="Birthday">Birthday Cakes</option>
-                          <option value="Anniversary">Anniversary Cakes</option>
-                          <option value="Themed">Themed Cakes</option>
-                        </select>
+                        {isNewCategoryMode ? (
+                          <div className="flex gap-2 items-center">
+                            <input
+                              type="text"
+                              value={newCategoryName}
+                              onChange={(e) => setNewCategoryName(e.target.value)}
+                              className="w-full text-xs py-2 px-2.5 border border-cream-200 rounded-lg focus:outline-none focus:border-luxury-gold input-premium"
+                              placeholder="New Category Name"
+                              required
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsNewCategoryMode(false);
+                                setNewCategoryName('');
+                                setProductForm(prev => ({ ...prev, category: 'Birthday' }));
+                              }}
+                              className="px-2.5 py-2 bg-cream-100 hover:bg-cream-200 text-cocoa-900 rounded-lg font-bold text-[10px]"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <select
+                            value={productForm.category}
+                            onChange={(e) => {
+                              if (e.target.value === 'NEW_CATEGORY') {
+                                setIsNewCategoryMode(true);
+                                setProductForm(prev => ({ ...prev, category: '' }));
+                              } else {
+                                setProductForm(prev => ({ ...prev, category: e.target.value }));
+                              }
+                            }}
+                            className="w-full text-xs py-2 px-2 border border-cream-200 rounded-lg focus:outline-none focus:border-luxury-gold cursor-pointer"
+                          >
+                            {Array.from(new Set(['Birthday', 'Anniversary', 'Themed', ...products.map(p => p.category)])).map(cat => (
+                              <option key={cat} value={cat}>{cat} Cakes</option>
+                            ))}
+                            <option value="NEW_CATEGORY">+ Add New Category...</option>
+                          </select>
+                        )}
                       </div>
                       <div>
                         <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">Base Price (0.5kg)</label>

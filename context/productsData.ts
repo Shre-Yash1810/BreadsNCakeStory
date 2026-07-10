@@ -5,7 +5,7 @@ export interface Product {
   price: number; // Base price for 0.5kg
   image: string;
   images: string[];
-  category: 'Birthday' | 'Anniversary' | 'Themed';
+  category: string;
 }
 
 export const defaultProducts: Product[] = [
