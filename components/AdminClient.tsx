@@ -36,6 +36,7 @@ export default function AdminClient() {
 
   // Modal / Form States
   const [isProductFormOpen, setIsProductFormOpen] = useState(false);
+  const [isAddonFormMode, setIsAddonFormMode] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isNewCategoryMode, setIsNewCategoryMode] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -173,6 +174,7 @@ export default function AdminClient() {
     });
     setIsNewCategoryMode(false);
     setNewCategoryName('');
+    setIsAddonFormMode(prod.category === 'Add-ons');
     setIsProductFormOpen(true);
   };
 
@@ -460,19 +462,36 @@ export default function AdminClient() {
                 <h2 className="heading-luxury text-3xl font-bold text-cocoa-900">Products Catalog</h2>
                 <p className="text-xs text-cocoa-500 font-normal">Add, edit, or delete items from the online store.</p>
               </div>
-              <button
-                onClick={() => {
-                  setEditingProduct(null);
-                  setProductForm({ name: '', description: '', price: '', category: 'Birthday', image: '' });
-                  setIsNewCategoryMode(false);
-                  setNewCategoryName('');
-                  setIsProductFormOpen(true);
-                }}
-                className="bg-gold-gradient hover:opacity-95 text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 shadow-gold-glow text-xs"
-              >
-                <Plus className="w-4 h-4" />
-                Add New Cake/Item
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setEditingProduct(null);
+                    setProductForm({ name: '', description: '', price: '', category: 'Birthday', image: '' });
+                    setIsNewCategoryMode(false);
+                    setNewCategoryName('');
+                    setIsAddonFormMode(false);
+                    setIsProductFormOpen(true);
+                  }}
+                  className="bg-gold-gradient hover:opacity-95 text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 shadow-gold-glow text-xs"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add New Cake
+                </button>
+                <button
+                  onClick={() => {
+                    setEditingProduct(null);
+                    setProductForm({ name: '', description: '', price: '', category: 'Add-ons', image: '' });
+                    setIsNewCategoryMode(false);
+                    setNewCategoryName('');
+                    setIsAddonFormMode(true);
+                    setIsProductFormOpen(true);
+                  }}
+                  className="bg-white border border-luxury-gold text-luxury-gold hover:bg-luxury-champagne px-5 py-3 rounded-xl font-bold flex items-center gap-2 shadow-sm text-xs transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add New Add-on
+                </button>
+              </div>
             </div>
 
             {/* Admin Product Category Tabs */}
@@ -554,14 +573,18 @@ export default function AdminClient() {
                 <div className="bg-cream-50 rounded-2xl border border-cream-200 max-w-md w-full p-6 shadow-premium z-10 space-y-4">
                   <div className="flex items-center justify-between border-b border-cream-100 pb-3">
                     <h3 className="heading-luxury text-lg font-bold text-cocoa-900">
-                      {editingProduct ? 'Edit Cake Details' : 'Add New Cake to Store'}
+                      {editingProduct 
+                        ? (editingProduct.category === 'Add-ons' ? 'Edit Add-on Details' : 'Edit Cake Details') 
+                        : (isAddonFormMode ? 'Add New Add-on' : 'Add New Cake to Store')}
                     </h3>
                     <button type="button" onClick={() => setIsProductFormOpen(false)} className="text-cocoa-100 hover:text-cocoa-500 font-bold text-sm">✕</button>
                   </div>
 
                   <form onSubmit={handleProductSubmit} className="space-y-4 text-xs">
                     <div>
-                      <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">Cake Name</label>
+                      <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">
+                        {isAddonFormMode || productForm.category === 'Add-ons' ? 'Item Name' : 'Cake Name'}
+                      </label>
                       <input
                         type="text"
                         value={productForm.name}
@@ -575,7 +598,11 @@ export default function AdminClient() {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">Category</label>
-                        {isNewCategoryMode ? (
+                        {isAddonFormMode || productForm.category === 'Add-ons' ? (
+                          <div className="w-full text-xs py-2 px-3 border border-cream-200 rounded-lg bg-cream-50 text-cocoa-500 font-bold">
+                            Add-ons
+                          </div>
+                        ) : isNewCategoryMode ? (
                           <div className="flex gap-2 items-center">
                             <input
                               type="text"
@@ -610,9 +637,11 @@ export default function AdminClient() {
                             }}
                             className="w-full text-xs py-2 px-2 border border-cream-200 rounded-lg focus:outline-none focus:border-luxury-gold cursor-pointer"
                           >
-                            {Array.from(new Set(['Birthday', 'Anniversary', 'Themed', 'Add-ons', ...products.map(p => p.category)])).map(cat => (
-                              <option key={cat} value={cat}>{cat} {cat === 'Add-ons' ? '' : 'Cakes'}</option>
-                            ))}
+                            {Array.from(new Set(['Birthday', 'Anniversary', 'Themed', ...products.map(p => p.category)]))
+                              .filter(cat => cat !== 'Add-ons')
+                              .map(cat => (
+                                <option key={cat} value={cat}>{cat} Cakes</option>
+                              ))}
                             <option value="NEW_CATEGORY">+ Add New Category...</option>
                           </select>
                         )}
@@ -645,7 +674,9 @@ export default function AdminClient() {
                     </div>
 
                     <div>
-                      <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">Cake Cover Photo</label>
+                      <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">
+                        {isAddonFormMode || productForm.category === 'Add-ons' ? 'Item Image' : 'Cake Cover Photo'}
+                      </label>
                       <div className="flex items-center gap-3 mt-1.5">
                         {productForm.image && (
                           <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-cream-200">
