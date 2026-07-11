@@ -143,7 +143,7 @@ async function sendMetaMessage(recipientNumber: string, templateName: string, co
     type: 'template',
     template: {
       name: templateName,
-      language: { code: 'en_US' }
+      language: { code: templateName === 'hello_world' ? 'en_US' : 'en' }
     }
   };
 

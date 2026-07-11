@@ -8,6 +8,7 @@ export interface IProduct extends Document {
   image: string;
   images: string[];
   category: string;
+  isAddon?: boolean;
 }
 
 const ProductSchema: Schema = new Schema(
@@ -18,7 +19,8 @@ const ProductSchema: Schema = new Schema(
     price: { type: Number, required: true },
     image: { type: String, required: true },
     images: { type: [String], default: [] },
-    category: { type: String, required: true, enum: ['Birthday', 'Anniversary', 'Themed'] }
+    category: { type: String, required: true, enum: ['Birthday', 'Anniversary', 'Themed'] },
+    isAddon: { type: Boolean, default: false }
   },
   {
     timestamps: true
