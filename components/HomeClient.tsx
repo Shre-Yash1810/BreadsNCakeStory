@@ -127,7 +127,7 @@ export default function HomeClient() {
 
   // Filtered products
   const filteredProducts = selectedCategory === 'All'
-    ? products
+    ? products.filter(p => p.category !== 'Add-ons')
     : products.filter(p => p.category === selectedCategory);
 
   // Get or initialize quick states for cards
@@ -419,7 +419,7 @@ export default function HomeClient() {
 
           {/* Category Tabs */}
           <div className="flex justify-center gap-2 mb-10 overflow-x-auto pb-2 px-4 scrollbar-hide">
-            {['All', ...Array.from(new Set(['Birthday', 'Anniversary', 'Themed', ...products.map(p => p.category)]))].map((cat) => (
+            {['All', ...Array.from(new Set(['Birthday', 'Anniversary', 'Themed', ...products.map(p => p.category)]))].filter(cat => cat !== 'Add-ons').map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
@@ -440,12 +440,14 @@ export default function HomeClient() {
             className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 px-2 sm:px-4"
           >
             <AnimatePresence mode="popLayout">
-              {filteredProducts.map((product) => {
+              {filteredProducts.filter(p => p.category !== 'Add-ons').map((product) => {
                 const cardState = getCardState(product.id);
                 // Price scaling multiplier
                 let multiplier = 1;
-                if (cardState.weight === 1) multiplier = 1.8;
-                else if (cardState.weight === 2) multiplier = 3.2;
+                if (product.category !== 'Add-ons') {
+                  if (cardState.weight === 1) multiplier = 1.8;
+                  else if (cardState.weight === 2) multiplier = 3.2;
+                }
                 const displayPrice = Math.round(product.price * multiplier);
 
                 return (

@@ -230,9 +230,11 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       // Base price is for 0.5kg.
       // Scaling factor: 0.5kg -> 1.0x, 1kg -> 1.8x, 2kg -> 3.2x, etc.
       let multiplier = 1;
-      if (item.weight === 1) multiplier = 1.8;
-      else if (item.weight === 2) multiplier = 3.2;
-      else if (item.weight > 2) multiplier = item.weight * 1.5;
+      if (item.product.category !== 'Add-ons') {
+        if (item.weight === 1) multiplier = 1.8;
+        else if (item.weight === 2) multiplier = 3.2;
+        else if (item.weight > 2) multiplier = item.weight * 1.5;
+      }
       
       const itemPrice = Math.round(item.product.price * multiplier);
       return total + itemPrice * item.quantity;

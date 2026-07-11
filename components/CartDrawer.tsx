@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useApp, CartItem } from '@/context/AppContext';
-import { X, Plus, Minus, Trash2, Send, ShoppingCart, Check } from 'lucide-react';
+import { X, Plus, Minus, Trash2, Send, ShoppingCart, Check, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
@@ -14,6 +14,8 @@ interface CartDrawerProps {
 const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
   const {
     cart,
+    products,
+    addToCart,
     updateCartQuantity,
     removeFromCart,
     getCartTotal,
@@ -52,9 +54,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
 
   const getScaledPrice = (item: CartItem) => {
     let multiplier = 1;
-    if (item.weight === 1) multiplier = 1.8;
-    else if (item.weight === 2) multiplier = 3.2;
-    else if (item.weight > 2) multiplier = item.weight * 1.5;
+    if (item.product.category !== 'Add-ons') {
+      if (item.weight === 1) multiplier = 1.8;
+      else if (item.weight === 2) multiplier = 3.2;
+      else if (item.weight > 2) multiplier = item.weight * 1.5;
+    }
     
     return Math.round(item.product.price * multiplier);
   };
@@ -283,6 +287,35 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                     );
                   })}
                 </div>
+
+                {/* Add-ons Upsell Section */}
+                {products.filter(p => p.category === 'Add-ons').length > 0 && (
+                  <div className="border-t border-cream-200 pt-5 mt-5">
+                    <h3 className="heading-luxury text-sm font-bold text-cocoa-900 mb-3 flex items-center gap-2">
+                      <Star className="w-4 h-4 text-luxury-gold fill-luxury-gold" /> Make It Extra Special
+                    </h3>
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                      {products.filter(p => p.category === 'Add-ons').map(addon => (
+                        <div key={addon.id} className="min-w-[140px] bg-white rounded-xl border border-cream-200 p-2.5 shadow-sm flex flex-col justify-between">
+                          <div className="relative w-full h-24 rounded-lg overflow-hidden bg-cream-50 mb-2 border border-cream-100">
+                            <img src={addon.image} alt={addon.name} className="object-cover w-full h-full" />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-bold text-cocoa-900 truncate">{addon.name}</h4>
+                            <span className="text-[10px] text-cocoa-500 font-bold block mb-2">₹{addon.price}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => addToCart(addon, 1, 1)}
+                            className="w-full bg-cream-100 hover:bg-luxury-champagne hover:text-luxury-gold text-cocoa-900 font-semibold text-[10px] py-1.5 rounded transition-all duration-300 flex items-center justify-center gap-1"
+                          >
+                            <Plus className="w-3 h-3" /> Add
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Checkout Section Form */}
                 <div className="border-t border-cream-200 pt-6 mt-6 space-y-4">

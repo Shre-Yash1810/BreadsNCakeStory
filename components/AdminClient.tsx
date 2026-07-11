@@ -24,6 +24,7 @@ export default function AdminClient() {
 
   // Active admin section
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'settings'>('dashboard');
+  const [adminProductCategory, setAdminProductCategory] = useState<string>('All');
 
   // Search & Filters inside Admin
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
@@ -470,8 +471,25 @@ export default function AdminClient() {
                 className="bg-gold-gradient hover:opacity-95 text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 shadow-gold-glow text-xs"
               >
                 <Plus className="w-4 h-4" />
-                Add New Cake
+                Add New Cake/Item
               </button>
+            </div>
+
+            {/* Admin Product Category Tabs */}
+            <div className="flex justify-start gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
+              {['All', ...Array.from(new Set(['Birthday', 'Anniversary', 'Themed', 'Add-ons', ...products.map(p => p.category)]))].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setAdminProductCategory(cat)}
+                  className={`px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-300 flex-shrink-0 ${
+                    adminProductCategory === cat
+                      ? 'bg-cocoa-900 text-white'
+                      : 'bg-white border border-cream-200 text-cocoa-500 hover:border-cream-300'
+                  }`}
+                >
+                  {cat} ({cat === 'All' ? products.length : products.filter(p => p.category === cat).length})
+                </button>
+              ))}
             </div>
 
             {/* Catalog list table */}
@@ -483,12 +501,12 @@ export default function AdminClient() {
                       <th className="p-4 w-16">Image</th>
                       <th className="p-4">Name</th>
                       <th className="p-4">Category</th>
-                      <th className="p-4">Base Price (0.5kg)</th>
+                      <th className="p-4">Price</th>
                       <th className="p-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-cream-100 font-medium text-cocoa-900">
-                    {products.map((prod) => (
+                    {products.filter(p => adminProductCategory === 'All' || p.category === adminProductCategory).map((prod) => (
                       <tr key={prod.id} className="hover:bg-cream-50/40">
                         <td className="p-4">
                           <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-cream-100 bg-cream-50">
@@ -592,15 +610,17 @@ export default function AdminClient() {
                             }}
                             className="w-full text-xs py-2 px-2 border border-cream-200 rounded-lg focus:outline-none focus:border-luxury-gold cursor-pointer"
                           >
-                            {Array.from(new Set(['Birthday', 'Anniversary', 'Themed', ...products.map(p => p.category)])).map(cat => (
-                              <option key={cat} value={cat}>{cat} Cakes</option>
+                            {Array.from(new Set(['Birthday', 'Anniversary', 'Themed', 'Add-ons', ...products.map(p => p.category)])).map(cat => (
+                              <option key={cat} value={cat}>{cat} {cat === 'Add-ons' ? '' : 'Cakes'}</option>
                             ))}
                             <option value="NEW_CATEGORY">+ Add New Category...</option>
                           </select>
                         )}
                       </div>
                       <div>
-                        <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">Base Price (0.5kg)</label>
+                        <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">
+                          {productForm.category === 'Add-ons' ? 'Price' : 'Base Price (0.5kg)'}
+                        </label>
                         <input
                           type="number"
                           value={productForm.price}
