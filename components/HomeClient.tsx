@@ -13,6 +13,7 @@ import confetti from 'canvas-confetti';
 
 export default function HomeClient() {
   const { products, settings, gallery, addToCart, reviews, addReview, addOrder } = useApp();
+  const carouselProducts = products.filter(p => p.category !== 'Add-ons');
   const searchParams = useSearchParams();
   
   // Modal & Drawer State
@@ -65,18 +66,18 @@ export default function HomeClient() {
   const [trainStep, setTrainStep] = useState(0);
   const [autoRotateTrain, setAutoRotateTrain] = useState(true);
 
-  const trainIndex = products.length > 0 ? ((trainStep % products.length) + products.length) % products.length : 0;
+  const trainIndex = carouselProducts.length > 0 ? ((trainStep % carouselProducts.length) + carouselProducts.length) % carouselProducts.length : 0;
 
   useEffect(() => {
-    if (!autoRotateTrain || products.length === 0) return;
+    if (!autoRotateTrain || carouselProducts.length === 0) return;
     const interval = setInterval(() => {
       setTrainStep((prev) => prev + 1);
     }, 1800);
     return () => clearInterval(interval);
-  }, [autoRotateTrain, products.length]);
+  }, [autoRotateTrain, carouselProducts.length]);
 
   const rotateToCard = (idx: number) => {
-    const n = products.length;
+    const n = carouselProducts.length;
     if (n === 0) return;
     const currentStep = trainStep;
     const currentIdx = ((currentStep % n) + n) % n;
@@ -288,7 +289,7 @@ export default function HomeClient() {
     }
   ];
 
-  const anglePerItem = products.length > 0 ? 360 / products.length : 0;
+  const anglePerItem = carouselProducts.length > 0 ? 360 / carouselProducts.length : 0;
   const currentRotation = -trainStep * anglePerItem;
 
   return (
@@ -314,7 +315,7 @@ export default function HomeClient() {
 
           {/* 3D Train Container */}
           <div className="relative h-[280px] sm:h-[400px] flex items-center justify-center perspective-container ring-container">
-            {products.length > 0 && (
+            {carouselProducts.length > 0 && (
               <div
                 className="relative w-full h-full flex items-center justify-center ring-3d"
                 style={{
@@ -322,12 +323,12 @@ export default function HomeClient() {
                   '--radius': 'var(--radius-dynamic)'
                 } as any}
               >
-                {products.map((product, idx) => {
+                {carouselProducts.map((product, idx) => {
                   const itemAngle = idx * anglePerItem;
                   const isSelected = idx === trainIndex;
                   const isVisible = idx === trainIndex ||
-                    idx === (trainIndex - 1 + products.length) % products.length ||
-                    idx === (trainIndex + 1) % products.length;
+                    idx === (trainIndex - 1 + carouselProducts.length) % carouselProducts.length ||
+                    idx === (trainIndex + 1) % carouselProducts.length;
 
                   return (
                     <div
@@ -360,7 +361,7 @@ export default function HomeClient() {
             )}
 
             {/* Carousel Control Buttons */}
-            {products.length > 0 && (
+            {carouselProducts.length > 0 && (
               <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 hidden sm:flex justify-between px-2 sm:px-12 pointer-events-none z-20">
                 <button
                   type="button"
@@ -387,7 +388,7 @@ export default function HomeClient() {
           </div>
 
           {/* Active Detail Sheet below Orbit */}
-          {products.length > 0 && (
+          {carouselProducts.length > 0 && (
             <div className="text-center mt-12 sm:mt-16 h-8 px-4">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -398,7 +399,7 @@ export default function HomeClient() {
                   transition={{ duration: 0.3 }}
                   className="text-xs sm:text-sm font-extrabold text-cocoa-900 uppercase tracking-widest"
                 >
-                  {products[trainIndex].name} — <span className="text-luxury-gold font-black">₹{products[trainIndex].price}</span>
+                  {carouselProducts[trainIndex].name} — <span className="text-luxury-gold font-black">₹{carouselProducts[trainIndex].price}</span>
                 </motion.div>
               </AnimatePresence>
             </div>
