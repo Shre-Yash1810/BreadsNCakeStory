@@ -921,6 +921,31 @@ export default function HomeClient() {
                   WhatsApp Us
                 </a>
               </div>
+              
+              {(settings.swiggyUrl || settings.zomatoUrl) && (
+                <div className="grid grid-cols-2 gap-3 pt-3">
+                  {settings.swiggyUrl && (
+                    <a
+                      href={settings.swiggyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-orange-500 hover:bg-orange-600 text-white text-center py-3 rounded-xl text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                      Order on Swiggy
+                    </a>
+                  )}
+                  {settings.zomatoUrl && (
+                    <a
+                      href={settings.zomatoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-red-600 hover:bg-red-700 text-white text-center py-3 rounded-xl text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                      Order on Zomato
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -941,6 +966,8 @@ export default function HomeClient() {
               <li><a href="#hero" className="hover:text-luxury-gold transition-colors">Home</a></li>
               <li><a href="#products" className="hover:text-luxury-gold transition-colors">Our Cakes</a></li>
               <li><a href="#custom-cake" className="hover:text-luxury-gold transition-colors">Custom Designs</a></li>
+              {settings.swiggyUrl && <li><a href={settings.swiggyUrl} target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors">Order on Swiggy</a></li>}
+              {settings.zomatoUrl && <li><a href={settings.zomatoUrl} target="_blank" rel="noopener noreferrer" className="hover:text-red-400 transition-colors">Order on Zomato</a></li>}
             </ul>
           </div>
           <div>

@@ -10,6 +10,8 @@ export interface ISetting extends Document {
   businessHours: string;
   heroTitle: string;
   heroSubtitle: string;
+  swiggyUrl?: string;
+  zomatoUrl?: string;
 }
 
 const SettingSchema: Schema = new Schema(
@@ -22,7 +24,9 @@ const SettingSchema: Schema = new Schema(
     address: { type: String, required: true },
     businessHours: { type: String, default: '' },
     heroTitle: { type: String, required: true },
-    heroSubtitle: { type: String, required: true }
+    heroSubtitle: { type: String, required: true },
+    swiggyUrl: { type: String, default: '' },
+    zomatoUrl: { type: String, default: '' }
   },
   {
     timestamps: true

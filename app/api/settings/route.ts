@@ -13,7 +13,9 @@ const defaultSettings = {
   address: "Bharti vidyapeth dattangr Rd tiranga chowk, opp.Shreeji pure veg Ambegaon pune-46",
   businessHours: "10.30 am to 11.00 pm",
   heroTitle: "Baking Luxury Stories in Every Slice",
-  heroSubtitle: "Handcrafted cakes, custom themed creations, and premium ingredients tailored for your most exquisite celebrations."
+  heroSubtitle: "Handcrafted cakes, custom themed creations, and premium ingredients tailored for your most exquisite celebrations.",
+  swiggyUrl: "",
+  zomatoUrl: ""
 };
 
 export const dynamic = 'force-dynamic';

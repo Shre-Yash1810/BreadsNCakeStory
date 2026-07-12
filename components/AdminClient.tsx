@@ -187,7 +187,9 @@ export default function AdminClient() {
     address: '',
     businessHours: '',
     heroTitle: '',
-    heroSubtitle: ''
+    heroSubtitle: '',
+    swiggyUrl: '',
+    zomatoUrl: ''
   });
   const [settingsSaved, setSettingsSaved] = useState(false);
 
@@ -201,7 +203,9 @@ export default function AdminClient() {
         address: settings.address,
         businessHours: settings.businessHours,
         heroTitle: settings.heroTitle,
-        heroSubtitle: settings.heroSubtitle
+        heroSubtitle: settings.heroSubtitle,
+        swiggyUrl: settings.swiggyUrl || '',
+        zomatoUrl: settings.zomatoUrl || ''
       });
     }
   }, [settings]);
@@ -1086,6 +1090,35 @@ export default function AdminClient() {
                         rows={2}
                         className="w-full text-sm py-2.5 px-3 border border-cream-200 rounded-lg focus:outline-none focus:border-luxury-gold input-premium resize-none"
                         required
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 border-t border-cream-100 pt-6">
+                  <h3 className="heading-luxury text-base font-bold text-cocoa-900 border-l-4 border-luxury-gold pl-2.5">
+                    Delivery Partner Links
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">Swiggy Store URL</label>
+                      <input
+                        type="url"
+                        value={settingsForm.swiggyUrl}
+                        onChange={(e) => setSettingsForm(prev => ({ ...prev, swiggyUrl: e.target.value }))}
+                        className="w-full text-sm py-2.5 px-3 border border-cream-200 rounded-lg focus:outline-none focus:border-luxury-gold input-premium"
+                        placeholder="https://www.swiggy.com/..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">Zomato Store URL</label>
+                      <input
+                        type="url"
+                        value={settingsForm.zomatoUrl}
+                        onChange={(e) => setSettingsForm(prev => ({ ...prev, zomatoUrl: e.target.value }))}
+                        className="w-full text-sm py-2.5 px-3 border border-cream-200 rounded-lg focus:outline-none focus:border-luxury-gold input-premium"
+                        placeholder="https://www.zomato.com/..."
                       />
                     </div>
                   </div>
