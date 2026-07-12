@@ -57,6 +57,7 @@ export interface WebsiteSettings {
   heroSubtitle: string;
   swiggyUrl?: string;
   zomatoUrl?: string;
+  googleMapsUrl?: string;
 }
 
 interface AppContextType {
@@ -98,7 +99,8 @@ const defaultSettings: WebsiteSettings = {
   heroTitle: "Baking Luxury Stories in Every Slice",
   heroSubtitle: "Handcrafted cakes, custom themed creations, and premium ingredients tailored for your most exquisite celebrations.",
   swiggyUrl: "",
-  zomatoUrl: ""
+  zomatoUrl: "",
+  googleMapsUrl: ""
 };
 
 const defaultGallery: string[] = [

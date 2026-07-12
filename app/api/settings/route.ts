@@ -15,7 +15,8 @@ const defaultSettings = {
   heroTitle: "Baking Luxury Stories in Every Slice",
   heroSubtitle: "Handcrafted cakes, custom themed creations, and premium ingredients tailored for your most exquisite celebrations.",
   swiggyUrl: "",
-  zomatoUrl: ""
+  zomatoUrl: "",
+  googleMapsUrl: ""
 };
 
 export const dynamic = 'force-dynamic';

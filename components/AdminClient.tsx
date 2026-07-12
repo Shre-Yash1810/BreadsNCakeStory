@@ -189,7 +189,8 @@ export default function AdminClient() {
     heroTitle: '',
     heroSubtitle: '',
     swiggyUrl: '',
-    zomatoUrl: ''
+    zomatoUrl: '',
+    googleMapsUrl: ''
   });
   const [settingsSaved, setSettingsSaved] = useState(false);
 
@@ -205,7 +206,8 @@ export default function AdminClient() {
         heroTitle: settings.heroTitle,
         heroSubtitle: settings.heroSubtitle,
         swiggyUrl: settings.swiggyUrl || '',
-        zomatoUrl: settings.zomatoUrl || ''
+        zomatoUrl: settings.zomatoUrl || '',
+        googleMapsUrl: settings.googleMapsUrl || ''
       });
     }
   }, [settings]);
@@ -1121,6 +1123,18 @@ export default function AdminClient() {
                         placeholder="https://www.zomato.com/..."
                       />
                     </div>
+                  </div>
+                  
+                  <div className="mt-4">
+                    <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">Google Maps Embedded URL (iframe src)</label>
+                    <input
+                      type="url"
+                      value={settingsForm.googleMapsUrl}
+                      onChange={(e) => setSettingsForm(prev => ({ ...prev, googleMapsUrl: e.target.value }))}
+                      className="w-full text-sm py-2.5 px-3 border border-cream-200 rounded-lg focus:outline-none focus:border-luxury-gold input-premium"
+                      placeholder="https://www.google.com/maps/embed?pb=..."
+                    />
+                    <p className="text-[10px] text-cocoa-100 mt-1">Copy the 'src' link from Google Maps 'Embed a map' feature. Must start with https://www.google.com/maps/embed</p>
                   </div>
                 </div>
 

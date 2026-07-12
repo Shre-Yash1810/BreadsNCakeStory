@@ -946,6 +946,24 @@ export default function HomeClient() {
                   )}
                 </div>
               )}
+
+              {settings.googleMapsUrl && (
+                <div className="border-t border-cream-200 pt-6">
+                  <h4 className="text-[10px] uppercase tracking-widest text-cocoa-500 font-bold mb-3">Location Map</h4>
+                  <div className="w-full h-48 sm:h-64 rounded-xl overflow-hidden shadow-sm border border-cream-200">
+                    <iframe
+                      src={settings.googleMapsUrl}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen={true}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Google Maps Location"
+                    ></iframe>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -12,6 +12,7 @@ export interface ISetting extends Document {
   heroSubtitle: string;
   swiggyUrl?: string;
   zomatoUrl?: string;
+  googleMapsUrl?: string;
 }
 
 const SettingSchema: Schema = new Schema(
@@ -26,7 +27,8 @@ const SettingSchema: Schema = new Schema(
     heroTitle: { type: String, required: true },
     heroSubtitle: { type: String, required: true },
     swiggyUrl: { type: String, default: '' },
-    zomatoUrl: { type: String, default: '' }
+    zomatoUrl: { type: String, default: '' },
+    googleMapsUrl: { type: String, default: '' }
   },
   {
     timestamps: true
