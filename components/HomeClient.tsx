@@ -950,18 +950,29 @@ export default function HomeClient() {
               {settings.googleMapsUrl && (
                 <div className="border-t border-cream-200 pt-6">
                   <h4 className="text-[10px] uppercase tracking-widest text-cocoa-500 font-bold mb-3">Location Map</h4>
-                  <div className="w-full h-48 sm:h-64 rounded-xl overflow-hidden shadow-sm border border-cream-200">
-                    <iframe
-                      src={settings.googleMapsUrl}
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      allowFullScreen={true}
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      title="Google Maps Location"
-                    ></iframe>
-                  </div>
+                  {settings.googleMapsUrl.includes('embed') ? (
+                    <div className="w-full h-48 sm:h-64 rounded-xl overflow-hidden shadow-sm border border-cream-200">
+                      <iframe
+                        src={settings.googleMapsUrl}
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        allowFullScreen={true}
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        title="Google Maps Location"
+                      ></iframe>
+                    </div>
+                  ) : (
+                    <a
+                      href={settings.googleMapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-white hover:bg-cream-100 text-cocoa-900 border border-cream-200 text-center py-4 rounded-xl text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                      📍 View Location on Google Maps
+                    </a>
+                  )}
                 </div>
               )}
             </div>
