@@ -154,13 +154,13 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         className="absolute inset-0 bg-cocoa-900/60 backdrop-blur-sm transition-opacity"
       />
 
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
+      <div className="absolute inset-y-0 right-0 w-full flex justify-end pl-10 sm:pl-16">
         <motion.div
           initial={{ x: '100%' }}
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="w-screen max-w-md sm:max-w-lg bg-cream-50 h-full shadow-premium flex flex-col"
+          className="w-full max-w-md sm:max-w-lg bg-cream-50 h-full shadow-premium flex flex-col"
         >
           {/* Header */}
           <div className="px-6 py-5 border-b border-cream-200 flex items-center justify-between bg-white shadow-sm">
