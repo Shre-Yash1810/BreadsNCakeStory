@@ -989,23 +989,25 @@ export default function HomeClient() {
               Handcrafting premium celebration cakes and sweet memories. Located in Ambegaon, Pune. 100% Eggless.
             </p>
           </div>
-          <div>
-            <h4 className="heading-luxury text-sm font-bold text-white mb-3">Sections</h4>
-            <ul className="space-y-2 text-xs text-cocoa-100 font-normal">
-              <li><a href="#hero" className="hover:text-luxury-gold transition-colors">Home</a></li>
-              <li><a href="#products" className="hover:text-luxury-gold transition-colors">Our Cakes</a></li>
-              <li><a href="#custom-cake" className="hover:text-luxury-gold transition-colors">Custom Designs</a></li>
-              {settings.swiggyUrl && <li><a href={settings.swiggyUrl} target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors">Order on Swiggy</a></li>}
-              {settings.zomatoUrl && <li><a href={settings.zomatoUrl} target="_blank" rel="noopener noreferrer" className="hover:text-red-400 transition-colors">Order on Zomato</a></li>}
-            </ul>
-          </div>
-          <div>
-            <h4 className="heading-luxury text-sm font-bold text-white mb-3">Categories</h4>
-            <ul className="space-y-2 text-xs text-cocoa-100 font-normal">
-              <li><button onClick={() => { setSelectedCategory('Birthday'); document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }); }} className="hover:text-luxury-gold text-left">Birthday Cakes</button></li>
-              <li><button onClick={() => { setSelectedCategory('Anniversary'); document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }); }} className="hover:text-luxury-gold text-left">Anniversary Cakes</button></li>
-              <li><button onClick={() => { setSelectedCategory('Themed'); document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }); }} className="hover:text-luxury-gold text-left">Themed Cakes</button></li>
-            </ul>
+          <div className="grid grid-cols-2 gap-4 md:col-span-2 md:gap-8">
+            <div>
+              <h4 className="heading-luxury text-sm font-bold text-white mb-3">Sections</h4>
+              <ul className="space-y-2 text-xs text-cocoa-100 font-normal">
+                <li><a href="#hero" className="hover:text-luxury-gold transition-colors">Home</a></li>
+                <li><a href="#products" className="hover:text-luxury-gold transition-colors">Our Cakes</a></li>
+                <li><a href="#custom-cake" className="hover:text-luxury-gold transition-colors">Custom Designs</a></li>
+                {settings.swiggyUrl && <li><a href={settings.swiggyUrl} target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors">Order on Swiggy</a></li>}
+                {settings.zomatoUrl && <li><a href={settings.zomatoUrl} target="_blank" rel="noopener noreferrer" className="hover:text-red-400 transition-colors">Order on Zomato</a></li>}
+              </ul>
+            </div>
+            <div>
+              <h4 className="heading-luxury text-sm font-bold text-white mb-3">Categories</h4>
+              <ul className="space-y-2 text-xs text-cocoa-100 font-normal">
+                <li><button onClick={() => { setSelectedCategory('Birthday'); document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }); }} className="hover:text-luxury-gold text-left">Birthday Cakes</button></li>
+                <li><button onClick={() => { setSelectedCategory('Anniversary'); document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }); }} className="hover:text-luxury-gold text-left">Anniversary Cakes</button></li>
+                <li><button onClick={() => { setSelectedCategory('Themed'); document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }); }} className="hover:text-luxury-gold text-left">Themed Cakes</button></li>
+              </ul>
+            </div>
           </div>
           <div>
             <h4 className="heading-luxury text-sm font-bold text-white mb-3">Contact</h4>
