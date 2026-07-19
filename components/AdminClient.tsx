@@ -28,8 +28,7 @@ export default function AdminClient() {
 
   // Search & Filters inside Admin
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
-  const [orderStatusFilter, setOrderStatusFilter] = useState<'All' | 'Pending' | 'Completed' | 'Sold'>('All');
-
+  const [orderStatusFilter, setOrderStatusFilter] = useState<'Pending' | 'Completed' | 'Sold'>('Pending');
   // Bargain amount editing states
   const [editingOrderTotalId, setEditingOrderTotalId] = useState<string | null>(null);
   const [tempOrderTotal, setTempOrderTotal] = useState<string>('');
@@ -749,8 +748,8 @@ export default function AdminClient() {
             </div>
 
             {/* Filter and Search controls */}
-            <div className="flex flex-col sm:flex-row gap-3 bg-white p-4 rounded-xl border border-cream-200 mb-6">
-              <div className="flex-1 relative">
+            <div className="flex flex-col gap-4 bg-white p-4 rounded-xl border border-cream-200 mb-6">
+              <div className="relative">
                 <input
                   type="text"
                   value={orderSearchQuery}
@@ -760,19 +759,33 @@ export default function AdminClient() {
                 />
                 <Search className="w-4 h-4 text-cocoa-100 absolute left-3 top-3" />
               </div>
+              
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                {['Pending', 'Completed', 'Sold'].map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => setOrderStatusFilter(status as any)}
+                    className={`px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-300 flex-shrink-0 flex items-center gap-2 ${
+                      orderStatusFilter === status
+                        ? 'bg-cocoa-900 text-white shadow-premium'
+                        : 'bg-cream-50 border border-cream-200 text-cocoa-500 hover:border-cream-300'
+                    }`}
+                  >
+                    {status}
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                      orderStatusFilter === status ? 'bg-white/20 text-white' : 'bg-cream-200 text-cocoa-600'
+                    }`}>
+                      {orders.filter(o => o.status === status).length}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Order Log Columns */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
-              {['Pending', 'Completed', 'Sold'].map((statusColumn) => (
+            {/* Order Log List */}
+            <div className="space-y-4">
+              {[orderStatusFilter].map((statusColumn) => (
                 <div key={statusColumn} className="space-y-4">
-                  <h3 className="font-bold text-cocoa-900 heading-luxury text-lg border-b border-cream-200 pb-2 flex items-center justify-between">
-                    <span>{statusColumn} Orders</span>
-                    <span className="text-xs bg-cream-100 text-cocoa-500 px-2 py-0.5 rounded-full">
-                      {orders.filter(o => o.status === statusColumn).length}
-                    </span>
-                  </h3>
-                  
                   {orders
                     .filter(o => o.status === statusColumn && (
                       o.customerName.toLowerCase().includes(orderSearchQuery.toLowerCase()) ||
@@ -782,20 +795,31 @@ export default function AdminClient() {
                     .map((order) => (
                       <div
                         key={order.id}
-                        className="bg-white rounded-2xl border border-cream-200 overflow-hidden shadow-sm"
+                        className="bg-white rounded-2xl border border-cream-200 overflow-hidden shadow-sm max-w-3xl mx-auto"
                       >
-                        <div className="bg-cream-50/50 p-3 border-b border-cream-100 flex flex-col justify-between gap-2 text-xs">
-                          <div className="flex justify-between items-start">
-                            <div className="flex flex-col gap-1">
-                              <span className="font-extrabold text-cocoa-900">#{order.id}</span>
-                              <span className={`px-2 py-0.5 w-fit rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                                order.status === 'Sold' ? 'bg-green-50 text-green-600 border border-green-200' :
-                                order.status === 'Completed' ? 'bg-blue-50 text-blue-500 border border-blue-200' :
-                                'bg-amber-50 text-amber-500 border border-amber-200'
-                              }`}>
-                                {order.status}
+                        <div className="bg-cream-50/50 p-4 border-b border-cream-100 flex justify-between items-center text-xs">
+                          <div className="flex items-center gap-3">
+                            <span className="font-extrabold text-cocoa-900 text-sm">#{order.id}</span>
+                            <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                              order.status === 'Sold' ? 'bg-green-50 text-green-600 border border-green-200' :
+                              order.status === 'Completed' ? 'bg-blue-50 text-blue-500 border border-blue-200' :
+                              'bg-amber-50 text-amber-500 border border-amber-200'
+                            }`}>
+                              {order.status}
+                            </span>
+                            {order.homeDelivery ? (
+                              <span className="px-2.5 py-0.5 bg-luxury-champagne text-luxury-gold border border-luxury-gold/20 rounded-full text-[9px] font-bold uppercase tracking-wider">
+                                🚚 Home Delivery
                               </span>
-                            </div>
+                            ) : (
+                              <span className="px-2.5 py-0.5 bg-cream-100 text-cocoa-500 border border-cream-200 rounded-full text-[9px] font-bold uppercase tracking-wider">
+                                🏪 Store Pickup
+                              </span>
+                            )}
+                          </div>
+                          
+                          <div className="flex items-center gap-3">
+                            <span className="text-[10px] text-cocoa-100 font-medium hidden sm:inline-block">{order.date}</span>
                             <button
                               onClick={() => { if(confirm("Delete this order record permanently?")) deleteOrder(order.id); }}
                               className="p-1.5 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
@@ -804,159 +828,164 @@ export default function AdminClient() {
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
-                          
-                          <div className="flex items-center gap-1.5 flex-wrap mt-1">
-                            {order.homeDelivery ? (
-                              <span className="px-2 py-0.5 bg-luxury-champagne text-luxury-gold border border-luxury-gold/20 rounded-full text-[9px] font-bold uppercase tracking-wider">
-                                🚚 Home Delivery
-                              </span>
-                            ) : (
-                              <span className="px-2 py-0.5 bg-cream-100 text-cocoa-500 border border-cream-200 rounded-full text-[9px] font-bold uppercase tracking-wider">
-                                🏪 Store Pickup
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-[9px] text-cocoa-100 font-medium">{order.date}</div>
                         </div>
 
-                        <div className="p-3 sm:p-4 flex flex-col gap-4 text-xs text-cocoa-500">
-                          <div className="space-y-1.5">
-                            <div className="flex justify-between items-baseline">
-                              <span className="font-bold text-cocoa-900 text-sm">{order.customerName}</span>
+                        <div className="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-12 gap-6 text-xs text-cocoa-500">
+                          <div className="md:col-span-5 space-y-3 border-b md:border-b-0 md:border-r border-cream-100 pb-4 md:pb-0 md:pr-4">
+                            <div>
+                              <span className="text-[10px] text-cocoa-100 block mb-0.5 uppercase font-bold tracking-wider">Customer</span>
+                              <span className="font-bold text-cocoa-900 text-base block">{order.customerName}</span>
                             </div>
-                            <div className="text-[10px] text-cocoa-900 flex flex-col">
-                              <span>M: {order.mobile}</span>
-                              <span>W: {order.whatsapp}</span>
+                            
+                            <div className="grid grid-cols-2 gap-2 bg-cream-50/50 p-2.5 rounded-lg border border-cream-100">
+                              <div>
+                                <span className="text-[9px] text-cocoa-100 block uppercase font-bold tracking-wider">Call</span>
+                                <span className="font-semibold text-cocoa-900">{order.mobile}</span>
+                              </div>
+                              <div>
+                                <span className="text-[9px] text-cocoa-100 block uppercase font-bold tracking-wider">WhatsApp</span>
+                                <span className="font-semibold text-cocoa-900">{order.whatsapp}</span>
+                              </div>
                             </div>
-                            <div className="text-[10px] text-cocoa-900 mt-1 leading-tight">
-                              <span className="font-semibold text-cocoa-500 block">Address:</span>
-                              {order.address} {order.landmark && `(${order.landmark})`}
+                            
+                            <div>
+                              <span className="text-[10px] text-cocoa-100 block mb-0.5 uppercase font-bold tracking-wider">Delivery Address</span>
+                              <span className="font-semibold text-cocoa-900 leading-tight block">{order.address}</span>
+                              {order.landmark && (
+                                <span className="text-cocoa-500 block mt-1"><span className="text-cocoa-100">Landmark:</span> {order.landmark}</span>
+                              )}
                             </div>
+                            
                             {order.notes && (
-                              <div className="bg-cream-50 p-2 rounded border border-cream-200 mt-1.5">
-                                <span className="text-[9px] uppercase font-bold tracking-wider text-cocoa-100 block">Notes</span>
+                              <div className="bg-luxury-champagne/30 p-2.5 rounded-lg border border-luxury-gold/20">
+                                <span className="text-[9px] uppercase font-bold tracking-wider text-luxury-gold block">Order Notes</span>
                                 <span className="text-cocoa-900 font-medium italic mt-0.5 block">{order.notes}</span>
                               </div>
                             )}
                           </div>
 
-                          <div className="space-y-2 border-t border-cream-100 pt-3">
-                            <span className="font-bold text-cocoa-500 uppercase tracking-wider text-[9px] block">Items</span>
-                            {order.items.map((item, idx) => (
-                              <div key={idx} className="flex gap-2.5 items-center justify-between bg-cream-50/30 p-1.5 rounded">
-                                <div className="flex gap-2 items-center">
-                                  <div className="relative w-6 h-6 rounded overflow-hidden bg-cream-50 border border-cream-200 flex-shrink-0">
-                                    <img src={item.image} alt={item.name} className="object-cover w-full h-full" />
+                          <div className="md:col-span-7 flex flex-col justify-between">
+                            <div className="space-y-2">
+                              <span className="text-[10px] text-cocoa-100 block mb-2 uppercase font-bold tracking-wider">Order Items</span>
+                              {order.items.map((item, idx) => (
+                                <div key={idx} className="flex gap-3 items-center justify-between bg-cream-50/30 p-2 rounded-lg border border-cream-100">
+                                  <div className="flex gap-3 items-center">
+                                    <div className="relative w-10 h-10 rounded overflow-hidden bg-cream-50 border border-cream-200 flex-shrink-0">
+                                      <img src={item.image} alt={item.name} className="object-cover w-full h-full" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                      <span className="font-bold text-cocoa-900 text-sm leading-tight">{item.name}</span>
+                                      <span className="text-[10px] text-cocoa-100 block mt-0.5">
+                                        Weight: {item.weight}kg | Qty: {item.quantity}
+                                      </span>
+                                    </div>
                                   </div>
-                                  <div className="flex flex-col">
-                                    <span className="font-bold text-cocoa-900 text-[10px] leading-tight">{item.name}</span>
-                                    <span className="text-[9px] text-cocoa-100 block">
-                                      {item.weight}kg x{item.quantity}
-                                    </span>
-                                  </div>
+                                  <span className="font-bold text-cocoa-900 text-sm">₹{item.price * item.quantity}</span>
                                 </div>
-                                <span className="font-bold text-cocoa-900 text-[10px]">₹{item.price * item.quantity}</span>
-                              </div>
-                            ))}
-                          </div>
+                              ))}
+                            </div>
 
-                          <div className="border-t border-cream-200 pt-3 flex justify-between items-center bg-cream-50/50 p-2.5 rounded-lg mt-1">
-                            <span className="text-xs font-bold text-cocoa-900">Total</span>
-                            {editingOrderTotalId === order.id ? (
-                              <div className="flex items-center gap-1">
-                                <span className="text-[10px] font-bold text-cocoa-500">₹</span>
-                                <input
-                                  type="number"
-                                  value={tempOrderTotal}
-                                  onChange={(e) => setTempOrderTotal(e.target.value)}
-                                  className="w-16 text-[10px] font-bold px-1.5 py-0.5 border border-luxury-gold rounded focus:outline-none bg-white text-cocoa-900"
-                                  autoFocus
-                                />
-                                <button
-                                  onClick={() => {
-                                    updateOrderTotal(order.id, parseFloat(tempOrderTotal) || 0);
-                                    setEditingOrderTotalId(null);
-                                  }}
-                                  className="p-1 text-green-600 hover:bg-green-50 rounded"
-                                >
-                                  <Check className="w-3 h-3" />
-                                </button>
-                                <button
-                                  onClick={() => setEditingOrderTotalId(null)}
-                                  className="p-1 text-red-500 hover:bg-red-50 rounded"
-                                >
-                                  <X className="w-3 h-3" />
-                                </button>
+                            <div className="mt-4 pt-4 border-t border-cream-100">
+                              <div className="flex justify-between items-center bg-cream-50 p-3 rounded-xl mb-4 border border-cream-200">
+                                <span className="text-sm font-bold text-cocoa-900">Total Amount</span>
+                                {editingOrderTotalId === order.id ? (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs font-bold text-cocoa-500">₹</span>
+                                    <input
+                                      type="number"
+                                      value={tempOrderTotal}
+                                      onChange={(e) => setTempOrderTotal(e.target.value)}
+                                      className="w-20 text-xs font-bold px-2 py-1 border border-luxury-gold rounded-lg focus:outline-none bg-white text-cocoa-900"
+                                      autoFocus
+                                    />
+                                    <button
+                                      onClick={() => {
+                                        updateOrderTotal(order.id, parseFloat(tempOrderTotal) || 0);
+                                        setEditingOrderTotalId(null);
+                                      }}
+                                      className="p-1.5 text-green-600 bg-green-50 hover:bg-green-100 rounded-lg"
+                                    >
+                                      <Check className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => setEditingOrderTotalId(null)}
+                                      className="p-1.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg"
+                                    >
+                                      <X className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-2 group">
+                                    <span className="text-lg font-extrabold text-green-700">₹{order.total}</span>
+                                    <button
+                                      onClick={() => {
+                                        setEditingOrderTotalId(order.id);
+                                        setTempOrderTotal(order.total.toString());
+                                      }}
+                                      className="p-1 text-cocoa-100 hover:text-luxury-gold hover:bg-luxury-champagne rounded-lg transition-colors"
+                                      title="Edit Amount"
+                                    >
+                                      <Edit3 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                )}
                               </div>
-                            ) : (
-                              <div className="flex items-center gap-1 group">
-                                <span className="text-sm font-extrabold text-green-700">₹{order.total}</span>
-                                <button
-                                  onClick={() => {
-                                    setEditingOrderTotalId(order.id);
-                                    setTempOrderTotal(order.total.toString());
-                                  }}
-                                  className="p-0.5 text-cocoa-100 hover:text-luxury-gold rounded"
-                                >
-                                  <Edit3 className="w-3 h-3" />
-                                </button>
-                              </div>
-                            )}
-                          </div>
 
-                          {/* Order Action Buttons */}
-                          <div className="flex flex-col gap-2 pt-2">
-                            {order.status === 'Pending' && (
-                              <div className="grid grid-cols-2 gap-2">
-                                <button
-                                  onClick={() => updateOrderStatus(order.id, 'Completed')}
-                                  className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold py-2 rounded-lg transition-all shadow-sm flex items-center justify-center"
-                                >
-                                  Mark Completed
-                                </button>
-                                <button
-                                  onClick={() => updateOrderStatus(order.id, 'Sold')}
-                                  className="bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold py-2 rounded-lg transition-all shadow-sm flex items-center justify-center gap-1"
-                                >
-                                  <Check className="w-3 h-3" /> Sold
-                                </button>
+                              {/* Order Action Buttons */}
+                              <div className="flex justify-end gap-2.5">
+                                {order.status === 'Pending' && (
+                                  <>
+                                    <button
+                                      onClick={() => updateOrderStatus(order.id, 'Completed')}
+                                      className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all shadow-sm"
+                                    >
+                                      Mark Completed
+                                    </button>
+                                    <button
+                                      onClick={() => updateOrderStatus(order.id, 'Sold')}
+                                      className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5"
+                                    >
+                                      <Check className="w-4 h-4" /> Sold
+                                    </button>
+                                  </>
+                                )}
+                                {order.status === 'Completed' && (
+                                  <>
+                                    <button
+                                      onClick={() => updateOrderStatus(order.id, 'Pending')}
+                                      className="bg-cream-100 hover:bg-cream-200 text-cocoa-500 text-xs font-bold px-6 py-2.5 rounded-xl transition-all border border-cream-300"
+                                    >
+                                      Revert to Pending
+                                    </button>
+                                    <button
+                                      onClick={() => updateOrderStatus(order.id, 'Sold')}
+                                      className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5"
+                                    >
+                                      <Check className="w-4 h-4" /> Sold
+                                    </button>
+                                  </>
+                                )}
+                                {order.status === 'Sold' && (() => {
+                                  let isToday = false;
+                                  try {
+                                    const orderDate = (order as any).createdAt ? new Date((order as any).createdAt) : new Date(order.date);
+                                    const now = new Date();
+                                    isToday = orderDate.getDate() === now.getDate() && 
+                                              orderDate.getMonth() === now.getMonth() && 
+                                              orderDate.getFullYear() === now.getFullYear();
+                                  } catch (e) {}
+                                  
+                                  return isToday ? (
+                                    <button
+                                      onClick={() => updateOrderStatus(order.id, 'Pending')}
+                                      className="bg-cream-100 hover:bg-cream-200 text-cocoa-500 text-xs font-bold px-6 py-2.5 rounded-xl transition-all border border-cream-300 flex justify-center items-center gap-1.5"
+                                    >
+                                      Reopen (Mark Pending)
+                                    </button>
+                                  ) : null;
+                                })()}
                               </div>
-                            )}
-                            {order.status === 'Completed' && (
-                              <div className="grid grid-cols-2 gap-2">
-                                <button
-                                  onClick={() => updateOrderStatus(order.id, 'Pending')}
-                                  className="bg-cream-100 hover:bg-cream-200 text-cocoa-500 text-[10px] font-bold py-2 rounded-lg transition-all border border-cream-300"
-                                >
-                                  Revert Pending
-                                </button>
-                                <button
-                                  onClick={() => updateOrderStatus(order.id, 'Sold')}
-                                  className="bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold py-2 rounded-lg transition-all shadow-sm flex items-center justify-center gap-1"
-                                >
-                                  <Check className="w-3 h-3" /> Sold
-                                </button>
-                              </div>
-                            )}
-                            {order.status === 'Sold' && (() => {
-                              let isToday = false;
-                              try {
-                                const orderDate = (order as any).createdAt ? new Date((order as any).createdAt) : new Date(order.date);
-                                const now = new Date();
-                                isToday = orderDate.getDate() === now.getDate() && 
-                                          orderDate.getMonth() === now.getMonth() && 
-                                          orderDate.getFullYear() === now.getFullYear();
-                              } catch (e) {}
-                              
-                              return isToday ? (
-                                <button
-                                  onClick={() => updateOrderStatus(order.id, 'Pending')}
-                                  className="w-full bg-cream-100 hover:bg-cream-200 text-cocoa-500 text-[10px] font-bold py-2 rounded-lg transition-all border border-cream-300 flex justify-center items-center gap-1"
-                                >
-                                  Reopen (Mark Pending)
-                                </button>
-                              ) : null;
-                            })()}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -967,8 +996,8 @@ export default function AdminClient() {
                       o.mobile.includes(orderSearchQuery) ||
                       o.id.includes(orderSearchQuery)
                     )).length === 0 && (
-                      <div className="bg-cream-50 border border-dashed border-cream-200 rounded-xl p-6 text-center text-[10px] text-cocoa-100 font-medium">
-                        No {statusColumn.toLowerCase()} orders found.
+                      <div className="bg-cream-50 border border-dashed border-cream-200 rounded-2xl p-12 text-center text-xs text-cocoa-500 font-medium max-w-3xl mx-auto shadow-sm">
+                        No {statusColumn.toLowerCase()} orders found matching your search.
                       </div>
                     )}
                 </div>
