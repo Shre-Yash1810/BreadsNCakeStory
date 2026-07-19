@@ -249,8 +249,19 @@ export default function AdminClient() {
     return matchesSearch && matchesStatus;
   });
 
-  const totalEarnings = orders
-    .filter(o => o.status === 'Sold')
+  const dailyEarnings = orders
+    .filter(o => {
+      if (o.status !== 'Sold') return false;
+      try {
+        const orderDate = (o as any).createdAt ? new Date((o as any).createdAt) : new Date(o.date);
+        const now = new Date();
+        return orderDate.getDate() === now.getDate() && 
+               orderDate.getMonth() === now.getMonth() && 
+               orderDate.getFullYear() === now.getFullYear();
+      } catch (e) {
+        return false;
+      }
+    })
     .reduce((sum, o) => sum + o.total, 0);
 
   const monthlyEarnings = orders
@@ -394,7 +405,7 @@ export default function AdminClient() {
             {/* Metrics cards */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {[
-                { title: 'Total Sales Revenue', value: `₹${totalEarnings}`, color: 'border-l-green-600', sub: 'Sum of sold orders' },
+                { title: 'Today\'s Revenue', value: `₹${dailyEarnings}`, color: 'border-l-green-600', sub: 'Today\'s sold orders' },
                 { title: 'Monthly Revenue', value: `₹${monthlyEarnings}`, color: 'border-l-emerald-500', sub: 'Current month sales' },
                 { title: 'Pending Orders', value: pendingCount, color: 'border-l-amber-500', sub: 'Awaiting confirmation' },
                 { title: 'Completed Orders', value: completedCount, color: 'border-l-blue-600', sub: 'Delivered but not paid' },
@@ -738,7 +749,7 @@ export default function AdminClient() {
             </div>
 
             {/* Filter and Search controls */}
-            <div className="flex flex-col sm:flex-row gap-3 bg-white p-4 rounded-xl border border-cream-200">
+            <div className="flex flex-col sm:flex-row gap-3 bg-white p-4 rounded-xl border border-cream-200 mb-6">
               <div className="flex-1 relative">
                 <input
                   type="text"
@@ -749,222 +760,220 @@ export default function AdminClient() {
                 />
                 <Search className="w-4 h-4 text-cocoa-100 absolute left-3 top-3" />
               </div>
-
-              <div className="w-full sm:w-48">
-                <select
-                  value={orderStatusFilter}
-                  onChange={(e) => setOrderStatusFilter(e.target.value as any)}
-                  className="w-full text-xs py-2.5 px-3 border border-cream-200 focus:outline-none focus:border-luxury-gold rounded-lg cursor-pointer text-cocoa-900 font-medium"
-                >
-                  <option value="All">All Status Logs</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Sold">Sold</option>
-                </select>
-              </div>
             </div>
 
-            {/* Order Log list */}
-            {filteredOrders.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-cream-200 py-16 text-center shadow-sm">
-                <p className="text-sm text-cocoa-100">No order logs found matching the filter queries.</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {filteredOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="bg-white rounded-2xl border border-cream-200 overflow-hidden shadow-sm"
-                  >
-                    <div className="bg-cream-50/50 p-4 border-b border-cream-100 flex flex-col sm:flex-row justify-between gap-3 text-xs">
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-extrabold text-cocoa-900">Order ID: #{order.id}</span>
-                          <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                            order.status === 'Sold' ? 'bg-green-50 text-green-600 border border-green-200' :
-                            order.status === 'Completed' ? 'bg-blue-50 text-blue-500 border border-blue-200' :
-                            'bg-amber-50 text-amber-500 border border-amber-200'
-                          }`}>
-                            {order.status}
-                          </span>
-                          {order.homeDelivery ? (
-                            <span className="px-2.5 py-0.5 bg-luxury-champagne text-luxury-gold border border-luxury-gold/20 rounded-full text-[9px] font-bold uppercase tracking-wider">
-                              🚚 Home Delivery (+₹{order.deliveryCharge || 50})
-                            </span>
-                          ) : (
-                            <span className="px-2.5 py-0.5 bg-cream-100 text-cocoa-500 border border-cream-200 rounded-full text-[9px] font-bold uppercase tracking-wider">
-                              🏪 Store Pickup
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[10px] text-cocoa-100 font-medium mt-0.5">Placed: {order.date}</div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => { if(confirm("Delete this order record permanently?")) deleteOrder(order.id); }}
-                          className="p-1.5 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
-                          title="Delete Order Record"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-12 gap-6 text-xs text-cocoa-500">
-                      <div className="md:col-span-4 space-y-2 border-r border-cream-100 pr-4">
-                        <h4 className="heading-luxury text-sm font-bold text-cocoa-900 mb-2">Customer Details</h4>
-                        <div>
-                          <span className="text-[10px] text-cocoa-100 block">Name</span>
-                          <span className="font-bold text-cocoa-900">{order.customerName}</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <span className="text-[10px] text-cocoa-100 block">Mobile</span>
-                            <span className="font-semibold text-cocoa-900">{order.mobile}</span>
-                          </div>
-                          <div>
-                            <span className="text-[10px] text-cocoa-100 block">WhatsApp</span>
-                            <span className="font-semibold text-cocoa-900">{order.whatsapp}</span>
-                          </div>
-                        </div>
-                        <div>
-                          <span className="text-[10px] text-cocoa-100 block">Delivery Address</span>
-                          <span className="font-semibold text-cocoa-900 leading-tight block">{order.address}</span>
-                        </div>
-                        {order.landmark && (
-                          <div>
-                            <span className="text-[10px] text-cocoa-100 block">Landmark</span>
-                            <span className="font-semibold text-cocoa-900">{order.landmark}</span>
-                          </div>
-                        )}
-                        {order.notes && (
-                          <div className="bg-cream-50 p-2.5 rounded-lg border border-cream-200">
-                            <span className="text-[9px] uppercase font-bold tracking-wider text-cocoa-100 block">Notes/Instructions</span>
-                            <span className="text-cocoa-900 font-medium italic mt-0.5 block">{order.notes}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="md:col-span-8 space-y-3">
-                        <h4 className="heading-luxury text-sm font-bold text-cocoa-900 mb-2">Ordered Cakes</h4>
-                        <div className="space-y-2.5">
-                          {order.items.map((item, idx) => (
-                            <div key={idx} className="flex gap-3.5 items-center justify-between border-b border-cream-100 pb-2.5 last:border-0 last:pb-0">
-                              <div className="flex gap-2.5 items-center">
-                                <div className="relative w-8 h-8 rounded overflow-hidden bg-cream-50 border border-cream-200">
-                                  <img src={item.image} alt={item.name} className="object-cover w-full h-full" />
-                                </div>
-                                <div>
-                                  <span className="font-bold text-cocoa-900">{item.name}</span>
-                                  <span className="text-[10px] text-cocoa-100 block mt-0.5">
-                                    Weight: {item.weight} kg | Qty: {item.quantity}
-                                  </span>
-                                </div>
-                              </div>
-                              <span className="font-bold text-cocoa-900">₹{item.price * item.quantity}</span>
+            {/* Order Log Columns */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+              {['Pending', 'Completed', 'Sold'].map((statusColumn) => (
+                <div key={statusColumn} className="space-y-4">
+                  <h3 className="font-bold text-cocoa-900 heading-luxury text-lg border-b border-cream-200 pb-2 flex items-center justify-between">
+                    <span>{statusColumn} Orders</span>
+                    <span className="text-xs bg-cream-100 text-cocoa-500 px-2 py-0.5 rounded-full">
+                      {orders.filter(o => o.status === statusColumn).length}
+                    </span>
+                  </h3>
+                  
+                  {orders
+                    .filter(o => o.status === statusColumn && (
+                      o.customerName.toLowerCase().includes(orderSearchQuery.toLowerCase()) ||
+                      o.mobile.includes(orderSearchQuery) ||
+                      o.id.includes(orderSearchQuery)
+                    ))
+                    .map((order) => (
+                      <div
+                        key={order.id}
+                        className="bg-white rounded-2xl border border-cream-200 overflow-hidden shadow-sm"
+                      >
+                        <div className="bg-cream-50/50 p-3 border-b border-cream-100 flex flex-col justify-between gap-2 text-xs">
+                          <div className="flex justify-between items-start">
+                            <div className="flex flex-col gap-1">
+                              <span className="font-extrabold text-cocoa-900">#{order.id}</span>
+                              <span className={`px-2 py-0.5 w-fit rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                                order.status === 'Sold' ? 'bg-green-50 text-green-600 border border-green-200' :
+                                order.status === 'Completed' ? 'bg-blue-50 text-blue-500 border border-blue-200' :
+                                'bg-amber-50 text-amber-500 border border-amber-200'
+                              }`}>
+                                {order.status}
+                              </span>
                             </div>
-                          ))}
-                        </div>
-
-                        <div className="border-t border-cream-200 pt-3 flex justify-between items-center bg-cream-50/50 p-3.5 rounded-xl">
-                          <span className="text-sm font-bold text-cocoa-900">Grand Total Earned</span>
-                          {editingOrderTotalId === order.id ? (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-cocoa-500">₹</span>
-                              <input
-                                type="number"
-                                value={tempOrderTotal}
-                                onChange={(e) => setTempOrderTotal(e.target.value)}
-                                className="w-24 text-xs font-bold px-2 py-1 border border-luxury-gold rounded-lg focus:outline-none bg-white text-cocoa-900"
-                                autoFocus
-                              />
-                              <button
-                                onClick={() => {
-                                  updateOrderTotal(order.id, parseFloat(tempOrderTotal) || 0);
-                                  setEditingOrderTotalId(null);
-                                }}
-                                className="p-1 text-green-600 hover:bg-green-50 rounded"
-                                title="Save"
-                              >
-                                <Check className="w-3.5 h-3.5" />
-                              </button>
-                              <button
-                                onClick={() => setEditingOrderTotalId(null)}
-                                className="p-1 text-red-500 hover:bg-red-50 rounded"
-                                title="Cancel"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5 group">
-                              <span className="text-base font-extrabold text-green-700">₹{order.total}</span>
-                              <button
-                                onClick={() => {
-                                  setEditingOrderTotalId(order.id);
-                                  setTempOrderTotal(order.total.toString());
-                                }}
-                                className="p-1 text-cocoa-100 hover:text-luxury-gold rounded transition-colors"
-                                title="Edit Amount (Bargain)"
-                              >
-                                <Edit3 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Order Action Buttons */}
-                        <div className="flex justify-end gap-2.5 pt-3">
-                          {order.status === 'Pending' && (
-                            <>
-                              <button
-                                onClick={() => updateOrderStatus(order.id, 'Completed')}
-                                className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all duration-300 shadow-sm active:scale-98"
-                              >
-                                Completed
-                              </button>
-                              <button
-                                onClick={() => updateOrderStatus(order.id, 'Sold')}
-                                className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all duration-300 shadow-sm active:scale-98"
-                              >
-                                <Check className="w-3.5 h-3.5" />
-                                Sold
-                              </button>
-                            </>
-                          )}
-                          {order.status === 'Completed' && (
-                            <>
-                              <button
-                                onClick={() => updateOrderStatus(order.id, 'Pending')}
-                                className="bg-cream-100 hover:bg-cream-200 text-cocoa-500 text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all duration-300 border border-cream-300 active:scale-98"
-                              >
-                                Reopen Order (Mark Pending)
-                              </button>
-                              <button
-                                onClick={() => updateOrderStatus(order.id, 'Sold')}
-                                className="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all duration-300 shadow-sm active:scale-98"
-                              >
-                                <Check className="w-3.5 h-3.5" />
-                                Sold
-                              </button>
-                            </>
-                          )}
-                          {order.status === 'Sold' && (
                             <button
-                              onClick={() => updateOrderStatus(order.id, 'Pending')}
-                              className="bg-cream-100 hover:bg-cream-200 text-cocoa-500 text-xs font-bold px-5 py-2.5 rounded-xl flex items-center gap-1.5 transition-all duration-300 border border-cream-300 active:scale-98"
+                              onClick={() => { if(confirm("Delete this order record permanently?")) deleteOrder(order.id); }}
+                              className="p-1.5 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
+                              title="Delete Order Record"
                             >
-                              Reopen Order (Mark Pending)
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
-                          )}
+                          </div>
+                          
+                          <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                            {order.homeDelivery ? (
+                              <span className="px-2 py-0.5 bg-luxury-champagne text-luxury-gold border border-luxury-gold/20 rounded-full text-[9px] font-bold uppercase tracking-wider">
+                                🚚 Home Delivery
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 bg-cream-100 text-cocoa-500 border border-cream-200 rounded-full text-[9px] font-bold uppercase tracking-wider">
+                                🏪 Store Pickup
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[9px] text-cocoa-100 font-medium">{order.date}</div>
+                        </div>
+
+                        <div className="p-3 sm:p-4 flex flex-col gap-4 text-xs text-cocoa-500">
+                          <div className="space-y-1.5">
+                            <div className="flex justify-between items-baseline">
+                              <span className="font-bold text-cocoa-900 text-sm">{order.customerName}</span>
+                            </div>
+                            <div className="text-[10px] text-cocoa-900 flex flex-col">
+                              <span>M: {order.mobile}</span>
+                              <span>W: {order.whatsapp}</span>
+                            </div>
+                            <div className="text-[10px] text-cocoa-900 mt-1 leading-tight">
+                              <span className="font-semibold text-cocoa-500 block">Address:</span>
+                              {order.address} {order.landmark && `(${order.landmark})`}
+                            </div>
+                            {order.notes && (
+                              <div className="bg-cream-50 p-2 rounded border border-cream-200 mt-1.5">
+                                <span className="text-[9px] uppercase font-bold tracking-wider text-cocoa-100 block">Notes</span>
+                                <span className="text-cocoa-900 font-medium italic mt-0.5 block">{order.notes}</span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="space-y-2 border-t border-cream-100 pt-3">
+                            <span className="font-bold text-cocoa-500 uppercase tracking-wider text-[9px] block">Items</span>
+                            {order.items.map((item, idx) => (
+                              <div key={idx} className="flex gap-2.5 items-center justify-between bg-cream-50/30 p-1.5 rounded">
+                                <div className="flex gap-2 items-center">
+                                  <div className="relative w-6 h-6 rounded overflow-hidden bg-cream-50 border border-cream-200 flex-shrink-0">
+                                    <img src={item.image} alt={item.name} className="object-cover w-full h-full" />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <span className="font-bold text-cocoa-900 text-[10px] leading-tight">{item.name}</span>
+                                    <span className="text-[9px] text-cocoa-100 block">
+                                      {item.weight}kg x{item.quantity}
+                                    </span>
+                                  </div>
+                                </div>
+                                <span className="font-bold text-cocoa-900 text-[10px]">₹{item.price * item.quantity}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="border-t border-cream-200 pt-3 flex justify-between items-center bg-cream-50/50 p-2.5 rounded-lg mt-1">
+                            <span className="text-xs font-bold text-cocoa-900">Total</span>
+                            {editingOrderTotalId === order.id ? (
+                              <div className="flex items-center gap-1">
+                                <span className="text-[10px] font-bold text-cocoa-500">₹</span>
+                                <input
+                                  type="number"
+                                  value={tempOrderTotal}
+                                  onChange={(e) => setTempOrderTotal(e.target.value)}
+                                  className="w-16 text-[10px] font-bold px-1.5 py-0.5 border border-luxury-gold rounded focus:outline-none bg-white text-cocoa-900"
+                                  autoFocus
+                                />
+                                <button
+                                  onClick={() => {
+                                    updateOrderTotal(order.id, parseFloat(tempOrderTotal) || 0);
+                                    setEditingOrderTotalId(null);
+                                  }}
+                                  className="p-1 text-green-600 hover:bg-green-50 rounded"
+                                >
+                                  <Check className="w-3 h-3" />
+                                </button>
+                                <button
+                                  onClick={() => setEditingOrderTotalId(null)}
+                                  className="p-1 text-red-500 hover:bg-red-50 rounded"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1 group">
+                                <span className="text-sm font-extrabold text-green-700">₹{order.total}</span>
+                                <button
+                                  onClick={() => {
+                                    setEditingOrderTotalId(order.id);
+                                    setTempOrderTotal(order.total.toString());
+                                  }}
+                                  className="p-0.5 text-cocoa-100 hover:text-luxury-gold rounded"
+                                >
+                                  <Edit3 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Order Action Buttons */}
+                          <div className="flex flex-col gap-2 pt-2">
+                            {order.status === 'Pending' && (
+                              <div className="grid grid-cols-2 gap-2">
+                                <button
+                                  onClick={() => updateOrderStatus(order.id, 'Completed')}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold py-2 rounded-lg transition-all shadow-sm flex items-center justify-center"
+                                >
+                                  Mark Completed
+                                </button>
+                                <button
+                                  onClick={() => updateOrderStatus(order.id, 'Sold')}
+                                  className="bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold py-2 rounded-lg transition-all shadow-sm flex items-center justify-center gap-1"
+                                >
+                                  <Check className="w-3 h-3" /> Sold
+                                </button>
+                              </div>
+                            )}
+                            {order.status === 'Completed' && (
+                              <div className="grid grid-cols-2 gap-2">
+                                <button
+                                  onClick={() => updateOrderStatus(order.id, 'Pending')}
+                                  className="bg-cream-100 hover:bg-cream-200 text-cocoa-500 text-[10px] font-bold py-2 rounded-lg transition-all border border-cream-300"
+                                >
+                                  Revert Pending
+                                </button>
+                                <button
+                                  onClick={() => updateOrderStatus(order.id, 'Sold')}
+                                  className="bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold py-2 rounded-lg transition-all shadow-sm flex items-center justify-center gap-1"
+                                >
+                                  <Check className="w-3 h-3" /> Sold
+                                </button>
+                              </div>
+                            )}
+                            {order.status === 'Sold' && (() => {
+                              let isToday = false;
+                              try {
+                                const orderDate = (order as any).createdAt ? new Date((order as any).createdAt) : new Date(order.date);
+                                const now = new Date();
+                                isToday = orderDate.getDate() === now.getDate() && 
+                                          orderDate.getMonth() === now.getMonth() && 
+                                          orderDate.getFullYear() === now.getFullYear();
+                              } catch (e) {}
+                              
+                              return isToday ? (
+                                <button
+                                  onClick={() => updateOrderStatus(order.id, 'Pending')}
+                                  className="w-full bg-cream-100 hover:bg-cream-200 text-cocoa-500 text-[10px] font-bold py-2 rounded-lg transition-all border border-cream-300 flex justify-center items-center gap-1"
+                                >
+                                  Reopen (Mark Pending)
+                                </button>
+                              ) : null;
+                            })()}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                    ))}
+                    
+                    {orders.filter(o => o.status === statusColumn && (
+                      o.customerName.toLowerCase().includes(orderSearchQuery.toLowerCase()) ||
+                      o.mobile.includes(orderSearchQuery) ||
+                      o.id.includes(orderSearchQuery)
+                    )).length === 0 && (
+                      <div className="bg-cream-50 border border-dashed border-cream-200 rounded-xl p-6 text-center text-[10px] text-cocoa-100 font-medium">
+                        No {statusColumn.toLowerCase()} orders found.
+                      </div>
+                    )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

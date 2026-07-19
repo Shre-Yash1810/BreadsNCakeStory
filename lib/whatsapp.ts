@@ -127,6 +127,10 @@ function buildTemplateComponents(type: NotificationType, templateName: string, p
  * Core function: sends a WhatsApp message via Meta Cloud API.
  */
 async function sendMetaMessage(recipientNumber: string, templateName: string, components?: any[]): Promise<boolean> {
+  // CLIENT REQUEST: Billing for Meta isn't done yet, so disable automated messages for now.
+  console.log(`[DISABLED] Would have sent WhatsApp [${templateName}] to ${recipientNumber}`);
+  return false;
+
   const accessToken = process.env.META_ACCESS_TOKEN;
   const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
 
