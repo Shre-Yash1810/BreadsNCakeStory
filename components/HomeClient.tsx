@@ -1098,12 +1098,7 @@ export default function HomeClient() {
           <span className="text-[10px] text-cocoa-100 font-normal">
             &copy; {new Date().getFullYear()} Breads & CakeStory. All Rights Reserved. Handcrafted in India.
           </span>
-          <a
-            href="/admin"
-            className="text-[10px] text-cocoa-100 hover:text-luxury-gold uppercase tracking-wider font-semibold"
-          >
-            Owner Portal Login
-          </a>
+
         </div>
       </footer>
 
