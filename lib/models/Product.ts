@@ -19,7 +19,7 @@ const ProductSchema: Schema = new Schema(
     price: { type: Number, required: true },
     image: { type: String, required: true },
     images: { type: [String], default: [] },
-    category: { type: String, required: true, enum: ['Birthday', 'Anniversary', 'Themed', 'Add-ons'] },
+    category: { type: String, required: true },
     isAddon: { type: Boolean, default: false }
   },
   {
