@@ -16,7 +16,9 @@ const defaultSettings = {
   heroSubtitle: "Handcrafted cakes, custom themed creations, and premium ingredients tailored for your most exquisite celebrations.",
   swiggyUrl: "",
   zomatoUrl: "",
-  googleMapsUrl: ""
+  googleMapsUrl: "",
+  bakerySubtitle: "Boutique Patisserie",
+  deliveryCharge: 0
 };
 
 export const dynamic = 'force-dynamic';

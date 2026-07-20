@@ -189,7 +189,9 @@ export default function AdminClient() {
     heroSubtitle: '',
     swiggyUrl: '',
     zomatoUrl: '',
-    googleMapsUrl: ''
+    googleMapsUrl: '',
+    bakerySubtitle: '',
+    deliveryCharge: 0
   });
   const [settingsSaved, setSettingsSaved] = useState(false);
 
@@ -206,7 +208,9 @@ export default function AdminClient() {
         heroSubtitle: settings.heroSubtitle,
         swiggyUrl: settings.swiggyUrl || '',
         zomatoUrl: settings.zomatoUrl || '',
-        googleMapsUrl: settings.googleMapsUrl || ''
+        googleMapsUrl: settings.googleMapsUrl || '',
+        bakerySubtitle: settings.bakerySubtitle || 'Boutique Patisserie',
+        deliveryCharge: settings.deliveryCharge || 0
       });
     }
   }, [settings]);
@@ -1033,6 +1037,16 @@ export default function AdminClient() {
                       />
                     </div>
                     <div>
+                      <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">Bakery Subtitle</label>
+                      <input
+                        type="text"
+                        value={settingsForm.bakerySubtitle}
+                        onChange={(e) => setSettingsForm(prev => ({ ...prev, bakerySubtitle: e.target.value }))}
+                        className="w-full text-sm py-2.5 px-3 border border-cream-200 rounded-lg focus:outline-none focus:border-luxury-gold input-premium"
+                        required
+                      />
+                    </div>
+                    <div>
                       <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">Owner Contact Number</label>
                       <input
                         type="tel"
@@ -1058,6 +1072,16 @@ export default function AdminClient() {
                         type="email"
                         value={settingsForm.email}
                         onChange={(e) => setSettingsForm(prev => ({ ...prev, email: e.target.value }))}
+                        className="w-full text-sm py-2.5 px-3 border border-cream-200 rounded-lg focus:outline-none focus:border-luxury-gold input-premium"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">Delivery Charge (₹)</label>
+                      <input
+                        type="number"
+                        value={settingsForm.deliveryCharge}
+                        onChange={(e) => setSettingsForm(prev => ({ ...prev, deliveryCharge: parseFloat(e.target.value) || 0 }))}
                         className="w-full text-sm py-2.5 px-3 border border-cream-200 rounded-lg focus:outline-none focus:border-luxury-gold input-premium"
                         required
                       />

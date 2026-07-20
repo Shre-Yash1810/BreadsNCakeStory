@@ -13,6 +13,8 @@ export interface ISetting extends Document {
   swiggyUrl?: string;
   zomatoUrl?: string;
   googleMapsUrl?: string;
+  bakerySubtitle: string;
+  deliveryCharge: number;
 }
 
 const SettingSchema: Schema = new Schema(
@@ -28,7 +30,9 @@ const SettingSchema: Schema = new Schema(
     heroSubtitle: { type: String, required: true },
     swiggyUrl: { type: String, default: '' },
     zomatoUrl: { type: String, default: '' },
-    googleMapsUrl: { type: String, default: '' }
+    googleMapsUrl: { type: String, default: '' },
+    bakerySubtitle: { type: String, default: 'Boutique Patisserie' },
+    deliveryCharge: { type: Number, default: 0 }
   },
   {
     timestamps: true

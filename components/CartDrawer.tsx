@@ -36,7 +36,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
   });
 
   const [homeDelivery, setHomeDelivery] = useState(false);
-  const DELIVERY_CHARGE = 50;
+  const DELIVERY_CHARGE = settings.deliveryCharge || 0;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -114,6 +114,41 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         deliveryCharge: homeDelivery ? DELIVERY_CHARGE : 0
       });
 
+      // Format WhatsApp message
+      let message = `🛒 *New Bakery Order - ${settings.bakeryName}* 🛒\n`;
+      message += `==========================\n\n`;
+      message += `👤 *Customer Details:*\n`;
+      message += `• *Name:* ${checkoutForm.name}\n`;
+      message += `• *Mobile:* ${checkoutForm.mobile}\n`;
+      message += `• *WhatsApp:* ${checkoutForm.whatsapp}\n\n`;
+      message += `🎉 *Event Details:*\n`;
+      message += `• *Event Type:* ${checkoutForm.eventType}\n`;
+      message += `• *Delivery Date:* ${checkoutForm.deliveryDate}\n\n`;
+      message += `📦 *Order Items:*\n`;
+      formattedItems.forEach((item, index) => {
+        message += `${index + 1}. *${item.name}*\n`;
+        message += `   Weight: ${item.weight}kg | Qty: ${item.quantity}\n`;
+        message += `   Price: ₹${item.price * item.quantity}\n`;
+      });
+      message += `\n🚚 *Delivery Option:* ${homeDelivery ? 'Home Delivery' : 'Store Pickup'}\n`;
+      if (homeDelivery) {
+        message += `• *Address:* ${checkoutForm.address}\n`;
+        if (checkoutForm.landmark) message += `• *Landmark:* ${checkoutForm.landmark}\n`;
+      }
+      if (checkoutForm.notes) {
+        message += `\n✍️ *Special Instructions:*\n${checkoutForm.notes}\n`;
+      }
+      message += `\n==========================\n`;
+      message += `*Items Subtotal:* ₹${getCartTotal()}\n`;
+      if (homeDelivery) message += `*Delivery Charges:* ₹${DELIVERY_CHARGE}\n`;
+      message += `*Grand Total: ₹${grandTotal}*\n`;
+      message += `==========================\n`;
+      
+      const encodedText = encodeURIComponent(message);
+      let ownerNum = settings.whatsappNumber;
+      if (ownerNum.length === 10) ownerNum = `91${ownerNum}`;
+      const whatsappUrl = `https://wa.me/${ownerNum}?text=${encodedText}`;
+
       // 3. Trigger confetti celebration!
       confetti({
         particleCount: 150,
@@ -136,6 +171,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
       });
       setHomeDelivery(false);
       setIsOrderSuccess(true);
+      window.open(whatsappUrl, '_blank');
     } catch (err) {
       console.error(err);
     } finally {

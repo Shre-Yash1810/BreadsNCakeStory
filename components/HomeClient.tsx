@@ -43,10 +43,15 @@ export default function HomeClient() {
     eventType: 'Birthday',
     theme: '',
     weight: '1',
+    weight: '1',
     date: '',
-    instructions: ''
+    instructions: '',
+    address: '',
+    landmark: ''
   });
   const [customErrors, setCustomErrors] = useState<Record<string, string>>({});
+  const [customHomeDelivery, setCustomHomeDelivery] = useState(false);
+  const DELIVERY_CHARGE = settings.deliveryCharge || 0;
 
   // Custom cake upload image state
   const [customImage, setCustomImage] = useState<File | null>(null);
@@ -168,6 +173,7 @@ export default function HomeClient() {
     else if (!/^\d{10}$/.test(customForm.phone.trim())) newErrors.phone = 'Enter a valid 10-digit number';
     if (!customForm.theme.trim()) newErrors.theme = 'Design theme / theme concept is required';
     if (!customForm.date) newErrors.date = 'Preferred date is required';
+    if (customHomeDelivery && !customForm.address.trim()) newErrors.address = 'Delivery address is required';
 
     if (Object.keys(newErrors).length > 0) {
       setCustomErrors(newErrors);
@@ -218,6 +224,12 @@ export default function HomeClient() {
     if (uploadedUrl) {
       message += `📸 *Reference Image URL:*\n${uploadedUrl}\n\n`;
     }
+    message += `🚚 *Delivery Option:* ${customHomeDelivery ? 'Home Delivery' : 'Store Pickup'}\n`;
+    if (customHomeDelivery) {
+      message += `• *Address:* ${customForm.address}\n`;
+      if (customForm.landmark) message += `• *Landmark:* ${customForm.landmark}\n`;
+      message += `*Delivery Charges:* ₹${DELIVERY_CHARGE}\n\n`;
+    }
     message += `==========================\n`;
     message += `*Please review and confirm cake booking availability.*`;
 
@@ -226,8 +238,8 @@ export default function HomeClient() {
       customerName: customForm.name,
       mobile: customForm.phone,
       whatsapp: customForm.phone,
-      address: 'Bespoke Custom Cake Inquiry',
-      landmark: `Event: ${customForm.eventType}`,
+      address: customHomeDelivery ? customForm.address : 'Bespoke Custom Cake Inquiry',
+      landmark: customHomeDelivery ? customForm.landmark : `Event: ${customForm.eventType}`,
       notes: `Theme: ${customForm.theme}. Prep Date: ${customForm.date}. Instructions: ${customForm.instructions}`,
       items: [{
         id: `custom-${Date.now()}`,
@@ -237,7 +249,9 @@ export default function HomeClient() {
         weight: parseFloat(customForm.weight),
         image: uploadedUrl || '/images/cake_themed_1.png'
       }],
-      total: 0
+      total: customHomeDelivery ? DELIVERY_CHARGE : 0,
+      homeDelivery: customHomeDelivery,
+      deliveryCharge: customHomeDelivery ? DELIVERY_CHARGE : 0
     });
 
     const encodedText = encodeURIComponent(message);
@@ -254,8 +268,11 @@ export default function HomeClient() {
       theme: '',
       weight: '1',
       date: '',
-      instructions: ''
+      instructions: '',
+      address: '',
+      landmark: ''
     });
+    setCustomHomeDelivery(false);
     setCustomImage(null);
     setCustomImagePreview('');
     setCustomErrors({});
@@ -687,6 +704,62 @@ export default function HomeClient() {
                 />
               </div>
 
+              {/* Home Delivery Toggle for Custom Orders */}
+              <div className="sm:col-span-2 bg-cream-100/30 p-4 rounded-xl border border-cream-200 space-y-2 mt-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-cocoa-900 uppercase tracking-wider block">Home Delivery</span>
+                    <span className="text-[10px] text-cocoa-500 block">Deliver to your doorstep (Charges: ₹{DELIVERY_CHARGE})</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCustomHomeDelivery(!customHomeDelivery)}
+                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      customHomeDelivery ? 'bg-luxury-gold' : 'bg-cream-300'
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        customHomeDelivery ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {customHomeDelivery && (
+                <>
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">
+                      Delivery Address
+                    </label>
+                    <textarea
+                      name="address"
+                      value={customForm.address}
+                      onChange={handleCustomChange}
+                      rows={2}
+                      className="w-full text-sm py-2.5 px-3 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium resize-none"
+                      placeholder="Complete residential address"
+                    />
+                    {customErrors.address && <p className="text-red-500 text-[10px] mt-0.5 font-medium">{customErrors.address}</p>}
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">
+                      Landmark <span className="text-[10px] text-cocoa-100 italic">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="landmark"
+                      value={customForm.landmark}
+                      onChange={handleCustomChange}
+                      className="w-full text-sm py-2.5 px-3 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium"
+                      placeholder="e.g. Near Tiranga Chowk"
+                    />
+                  </div>
+                </>
+              )}
+
               <div className="sm:col-span-2">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">
                   Upload Reference Image / Design Sketch <span className="text-[10px] text-cocoa-100 italic">(Optional)</span>
@@ -1010,11 +1083,13 @@ export default function HomeClient() {
             </div>
           </div>
           <div>
-            <h4 className="heading-luxury text-sm font-bold text-white mb-3">Contact</h4>
+            <h4 className="heading-luxury text-sm font-bold text-white mb-3">Contact & Legal</h4>
             <p className="text-xs text-cocoa-100 leading-relaxed font-normal">
               📍 Ambegaon, Pune - 46<br />
               📞 +91 {settings.contactNumber}<br />
-              ✉️ {settings.email}
+              ✉️ {settings.email}<br /><br />
+              <span className="font-semibold text-cocoa-50">FSSAI No:</span> 11518035001755<br />
+              <span className="font-semibold text-cocoa-50">GST No:</span> 27AZKPG3663N1ZU
             </p>
           </div>
         </div>

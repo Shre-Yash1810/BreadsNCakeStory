@@ -78,7 +78,7 @@ const Navbar: React.FC<NavbarProps> = ({ onCartOpen }) => {
                 {settings.bakeryName}
               </span>
               <span className="text-[9px] uppercase tracking-widest text-luxury-gold font-semibold leading-none">
-                Boutique Patisserie
+                {settings.bakerySubtitle}
               </span>
             </div>
           </a>

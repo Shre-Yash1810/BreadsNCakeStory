@@ -58,6 +58,8 @@ export interface WebsiteSettings {
   swiggyUrl?: string;
   zomatoUrl?: string;
   googleMapsUrl?: string;
+  bakerySubtitle: string;
+  deliveryCharge: number;
 }
 
 interface AppContextType {
@@ -100,7 +102,9 @@ const defaultSettings: WebsiteSettings = {
   heroSubtitle: "Handcrafted cakes, custom themed creations, and premium ingredients tailored for your most exquisite celebrations.",
   swiggyUrl: "",
   zomatoUrl: "",
-  googleMapsUrl: ""
+  googleMapsUrl: "",
+  bakerySubtitle: "Boutique Patisserie",
+  deliveryCharge: 0
 };
 
 const defaultGallery: string[] = [
