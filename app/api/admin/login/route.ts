@@ -7,8 +7,8 @@ export async function POST(request: Request) {
   try {
     const { username, password } = await request.json();
 
-    const envUsername = process.env.ADMIN_USERNAME || 'admin';
-    const envPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    const envUsername = process.env.ADMIN_USERNAME || 'breads&cakestory';
+    const envPassword = process.env.ADMIN_PASSWORD || '1234@cake';
 
     if (username !== envUsername || password !== envPassword) {
       return NextResponse.json(
