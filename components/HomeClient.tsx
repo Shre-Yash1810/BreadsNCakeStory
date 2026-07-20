@@ -1054,7 +1054,7 @@ export default function HomeClient() {
 
       {/* Footer */}
       <footer className="bg-cocoa-900 text-cream-50 py-12 border-t border-cocoa-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="heading-luxury text-lg font-bold text-luxury-gold mb-3">{settings.bakeryName}</h3>
             <p className="text-xs text-cocoa-100 font-normal leading-relaxed max-w-xs">
@@ -1071,6 +1071,13 @@ export default function HomeClient() {
                 {settings.swiggyUrl && <li><a href={settings.swiggyUrl} target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors">Order on Swiggy</a></li>}
                 {settings.zomatoUrl && <li><a href={settings.zomatoUrl} target="_blank" rel="noopener noreferrer" className="hover:text-red-400 transition-colors">Order on Zomato</a></li>}
               </ul>
+
+              <h4 className="heading-luxury text-sm font-bold text-white mt-8 mb-3">Contact</h4>
+              <p className="text-xs text-cocoa-100 leading-relaxed font-normal">
+                📍 Ambegaon, Pune - 46<br />
+                📞 +91 {settings.contactNumber}<br />
+                ✉️ {settings.email}
+              </p>
             </div>
             <div>
               <h4 className="heading-luxury text-sm font-bold text-white mb-3">Categories</h4>
@@ -1085,14 +1092,6 @@ export default function HomeClient() {
                 <span className="font-semibold text-cocoa-50">GST No:</span> 27AZKPG3663N1ZU
               </p>
             </div>
-          </div>
-          <div>
-            <h4 className="heading-luxury text-sm font-bold text-white mb-3">Contact</h4>
-            <p className="text-xs text-cocoa-100 leading-relaxed font-normal">
-              📍 Ambegaon, Pune - 46<br />
-              📞 +91 {settings.contactNumber}<br />
-              ✉️ {settings.email}
-            </p>
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-cocoa-800 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
