@@ -1079,16 +1079,19 @@ export default function HomeClient() {
                 <li><button onClick={() => { setSelectedCategory('Anniversary'); document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }); }} className="hover:text-luxury-gold text-left">Anniversary Cakes</button></li>
                 <li><button onClick={() => { setSelectedCategory('Themed'); document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }); }} className="hover:text-luxury-gold text-left">Themed Cakes</button></li>
               </ul>
+              <h4 className="heading-luxury text-sm font-bold text-white mt-6 mb-3">Legal</h4>
+              <p className="text-xs text-cocoa-100 leading-relaxed font-normal">
+                <span className="font-semibold text-cocoa-50">FSSAI No:</span> 11518035001755<br />
+                <span className="font-semibold text-cocoa-50">GST No:</span> 27AZKPG3663N1ZU
+              </p>
             </div>
           </div>
           <div>
-            <h4 className="heading-luxury text-sm font-bold text-white mb-3">Contact & Legal</h4>
+            <h4 className="heading-luxury text-sm font-bold text-white mb-3">Contact</h4>
             <p className="text-xs text-cocoa-100 leading-relaxed font-normal">
               📍 Ambegaon, Pune - 46<br />
               📞 +91 {settings.contactNumber}<br />
-              ✉️ {settings.email}<br /><br />
-              <span className="font-semibold text-cocoa-50">FSSAI No:</span> 11518035001755<br />
-              <span className="font-semibold text-cocoa-50">GST No:</span> 27AZKPG3663N1ZU
+              ✉️ {settings.email}
             </p>
           </div>
         </div>
