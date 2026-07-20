@@ -187,8 +187,8 @@ export default function HomeClient() {
         const formData = new FormData();
         formData.append('file', customImage);
         
-        // Uploading anonymously to tmpfiles.org
-        const uploadRes = await fetch('https://tmpfiles.org/api/v1/upload', {
+        // Uploading to local API endpoint with 7-day TTL retention
+        const uploadRes = await fetch('/api/upload-temp', {
           method: 'POST',
           body: formData
         });
@@ -196,8 +196,7 @@ export default function HomeClient() {
         if (uploadRes.ok) {
           const uploadJson = await uploadRes.json();
           if (uploadJson.status === 'success' && uploadJson.data?.url) {
-            // Convert to direct link for easy viewing
-            uploadedUrl = uploadJson.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+            uploadedUrl = uploadJson.data.url;
           }
         }
       } catch (err) {
