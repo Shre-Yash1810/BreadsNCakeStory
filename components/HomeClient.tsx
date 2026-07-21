@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { useApp, Product } from '@/context/AppContext';
 import Navbar from '@/components/Navbar';
 import HeroScene from '@/components/HeroScene';
@@ -1166,10 +1167,14 @@ export default function HomeClient() {
                 <li><button onClick={() => { setSelectedCategory('Themed'); document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }); }} className="hover:text-luxury-gold text-left">Themed Cakes</button></li>
               </ul>
               <h4 className="heading-luxury text-sm font-bold text-white mt-6 mb-3">Legal</h4>
-              <p className="text-xs text-cocoa-100 leading-relaxed font-normal">
+              <p className="text-xs text-cocoa-100 leading-relaxed font-normal mb-3">
                 <span className="font-semibold text-cocoa-50">FSSAI No:</span> 11518035001755<br />
                 <span className="font-semibold text-cocoa-50">GST No:</span> 27AZKPG3663N1ZU
               </p>
+              <ul className="space-y-2 text-xs text-cocoa-100 font-normal">
+                <li><Link href="/privacy-policy" className="hover:text-luxury-gold transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms-conditions" className="hover:text-luxury-gold transition-colors">Terms & Conditions</Link></li>
+              </ul>
             </div>
           </div>
         </div>
