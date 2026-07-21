@@ -431,13 +431,28 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                         <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">
                           Delivery Time
                         </label>
-                        <input
-                          type="time"
+                        <select
                           name="deliveryTime"
                           value={checkoutForm.deliveryTime}
                           onChange={handleInputChange}
-                          className="w-full text-sm py-2.5 px-3 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium cursor-pointer"
-                        />
+                          className="w-full text-sm py-2.5 px-3 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium cursor-pointer bg-white"
+                        >
+                          <option value="">Select Time</option>
+                          {Array.from({ length: 28 }).map((_, i) => {
+                            // Start from 9 AM to 10:30 PM (28 slots of 30 mins)
+                            const totalMinutes = 9 * 60 + i * 30; 
+                            const hour24 = Math.floor(totalMinutes / 60);
+                            const minutes = totalMinutes % 60;
+                            const hour12 = hour24 % 12 || 12;
+                            const ampm = hour24 < 12 ? 'AM' : 'PM';
+                            const timeString = `${hour12}:${minutes === 0 ? '00' : '30'} ${ampm}`;
+                            return (
+                              <option key={timeString} value={timeString}>
+                                {timeString}
+                              </option>
+                            );
+                          })}
+                        </select>
                         {errors.deliveryTime && <p className="text-red-500 text-[10px] mt-0.5 font-medium">{errors.deliveryTime}</p>}
                       </div>
                     </div>
