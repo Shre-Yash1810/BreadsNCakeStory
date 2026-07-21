@@ -32,7 +32,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     landmark: '',
     notes: '',
     deliveryDate: '',
-    deliveryTime: '',
+    deliveryHour: '10',
+    deliveryMinute: '00',
+    deliveryAmPm: 'AM',
     eventType: 'General'
   });
 
@@ -74,7 +76,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     else if (!/^\d{10}$/.test(checkoutForm.whatsapp.trim())) newErrors.whatsapp = 'Enter a valid 10-digit number';
 
     if (!checkoutForm.deliveryDate) newErrors.deliveryDate = 'Delivery date is required';
-    if (!checkoutForm.deliveryTime) newErrors.deliveryTime = 'Delivery time is required';
+    if (!checkoutForm.deliveryHour || !checkoutForm.deliveryMinute) newErrors.deliveryTime = 'Delivery time is required';
     if (homeDelivery && !checkoutForm.address.trim()) newErrors.address = 'Delivery address is required';
 
     setErrors(newErrors);
@@ -100,6 +102,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
 
       const grandTotal = getCartTotal() + (homeDelivery ? DELIVERY_CHARGE : 0);
 
+      const finalDeliveryTime = `${checkoutForm.deliveryHour}:${checkoutForm.deliveryMinute.padStart(2, '0')} ${checkoutForm.deliveryAmPm}`;
+
       // 2. Add order to internal AppState/localStorage
       addOrder({
         customerName: checkoutForm.name,
@@ -111,7 +115,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         items: formattedItems,
         total: grandTotal,
         deliveryDate: new Date(checkoutForm.deliveryDate).toISOString(),
-        deliveryTime: checkoutForm.deliveryTime,
+        deliveryTime: finalDeliveryTime,
         eventType: checkoutForm.eventType as any,
         homeDelivery,
         deliveryCharge: homeDelivery ? DELIVERY_CHARGE : 0
@@ -126,7 +130,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
       message += `• *WhatsApp:* ${checkoutForm.whatsapp}\n\n`;
       message += `🎉 *Event Details:*\n`;
       message += `• *Event Type:* ${checkoutForm.eventType}\n`;
-      message += `• *Delivery Date & Time:* ${checkoutForm.deliveryDate} at ${checkoutForm.deliveryTime}\n\n`;
+      message += `• *Delivery Date & Time:* ${checkoutForm.deliveryDate} at ${finalDeliveryTime}\n\n`;
       message += `📦 *Order Items:*\n`;
       formattedItems.forEach((item, index) => {
         message += `${index + 1}. *${item.name}*\n`;
@@ -170,7 +174,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         landmark: '',
         notes: '',
         deliveryDate: '',
-        deliveryTime: '',
+        deliveryHour: '10',
+        deliveryMinute: '00',
+        deliveryAmPm: 'AM',
         eventType: 'General'
       });
       setHomeDelivery(false);
@@ -431,28 +437,69 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                         <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">
                           Delivery Time
                         </label>
-                        <select
-                          name="deliveryTime"
-                          value={checkoutForm.deliveryTime}
-                          onChange={handleInputChange}
-                          className="w-full text-sm py-2.5 px-3 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium cursor-pointer bg-white"
-                        >
-                          <option value="">Select Time</option>
-                          {Array.from({ length: 28 }).map((_, i) => {
-                            // Start from 9 AM to 10:30 PM (28 slots of 30 mins)
-                            const totalMinutes = 9 * 60 + i * 30; 
-                            const hour24 = Math.floor(totalMinutes / 60);
-                            const minutes = totalMinutes % 60;
-                            const hour12 = hour24 % 12 || 12;
-                            const ampm = hour24 < 12 ? 'AM' : 'PM';
-                            const timeString = `${hour12}:${minutes === 0 ? '00' : '30'} ${ampm}`;
-                            return (
-                              <option key={timeString} value={timeString}>
-                                {timeString}
-                              </option>
-                            );
-                          })}
-                        </select>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            maxLength={2}
+                            name="deliveryHour"
+                            value={checkoutForm.deliveryHour}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, '');
+                              if (val === '' || parseInt(val) <= 12) {
+                                setCheckoutForm(prev => ({ ...prev, deliveryHour: val }));
+                                setErrors(prev => ({ ...prev, deliveryTime: '' }));
+                              }
+                            }}
+                            onBlur={(e) => {
+                              if (e.target.value !== '' && parseInt(e.target.value) < 1) {
+                                setCheckoutForm(prev => ({ ...prev, deliveryHour: '1' }));
+                              } else if (e.target.value === '') {
+                                setCheckoutForm(prev => ({ ...prev, deliveryHour: '12' }));
+                              }
+                            }}
+                            className="w-12 text-center text-sm py-2.5 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium bg-white"
+                            placeholder="HH"
+                          />
+                          <span className="text-cocoa-500 font-bold self-center">:</span>
+                          <input
+                            type="text"
+                            maxLength={2}
+                            name="deliveryMinute"
+                            value={checkoutForm.deliveryMinute}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, '');
+                              if (val === '' || parseInt(val) <= 59) {
+                                setCheckoutForm(prev => ({ ...prev, deliveryMinute: val }));
+                                setErrors(prev => ({ ...prev, deliveryTime: '' }));
+                              }
+                            }}
+                            onBlur={(e) => {
+                              if (e.target.value === '') {
+                                setCheckoutForm(prev => ({ ...prev, deliveryMinute: '00' }));
+                              } else if (e.target.value.length === 1) {
+                                setCheckoutForm(prev => ({ ...prev, deliveryMinute: '0' + e.target.value }));
+                              }
+                            }}
+                            className="w-12 text-center text-sm py-2.5 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium bg-white"
+                            placeholder="MM"
+                          />
+                          <div className="flex bg-cream-100 rounded-lg p-1">
+                            <button
+                              type="button"
+                              onClick={() => setCheckoutForm(prev => ({ ...prev, deliveryAmPm: 'AM' }))}
+                              className={`px-3 py-1 rounded text-xs font-bold transition-colors ${checkoutForm.deliveryAmPm === 'AM' ? 'bg-white text-cocoa-900 shadow-sm' : 'text-cocoa-500 hover:text-cocoa-900'}`}
+                            >
+                              AM
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setCheckoutForm(prev => ({ ...prev, deliveryAmPm: 'PM' }))}
+                              className={`px-3 py-1 rounded text-xs font-bold transition-colors ${checkoutForm.deliveryAmPm === 'PM' ? 'bg-white text-cocoa-900 shadow-sm' : 'text-cocoa-500 hover:text-cocoa-900'}`}
+                            >
+                              PM
+                            </button>
+                          </div>
+                        </div>
                         {errors.deliveryTime && <p className="text-red-500 text-[10px] mt-0.5 font-medium">{errors.deliveryTime}</p>}
                       </div>
                     </div>
