@@ -40,6 +40,29 @@ export default function OurStoryPage() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash !== '#preview') {
+        setSelectedImage(null);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const openLightbox = (src: string) => {
+    setSelectedImage(src);
+    window.location.hash = 'preview';
+  };
+
+  const closeLightbox = () => {
+    if (window.location.hash === '#preview') {
+      window.history.back();
+    } else {
+      setSelectedImage(null);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -124,7 +147,7 @@ export default function OurStoryPage() {
                       key={index}
                       variants={fadeInUp}
                       whileHover={{ scale: 1.02 }}
-                      onClick={() => setSelectedImage(src)}
+                      onClick={() => openLightbox(src)}
                       className={`relative rounded-xl overflow-hidden shadow-md group cursor-pointer ${index === 0 ? 'md:col-span-2 lg:col-span-2 h-64 sm:h-80' : 'h-64 sm:h-80'}`}
                     >
                       <Image
@@ -161,7 +184,7 @@ export default function OurStoryPage() {
                           }
                         }}
                         className="absolute inset-0 cursor-grab active:cursor-grabbing w-full h-full group"
-                        onClick={() => setSelectedImage(images[activeMobileIndex])}
+                        onClick={() => openLightbox(images[activeMobileIndex])}
                       >
                         <Image
                           src={images[activeMobileIndex]}
@@ -232,13 +255,13 @@ export default function OurStoryPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setSelectedImage(null)}
+            onClick={closeLightbox}
             className="fixed inset-0 z-50 flex items-center justify-center bg-cocoa-900/95 p-4 sm:p-8 cursor-zoom-out backdrop-blur-sm"
           >
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedImage(null);
+                closeLightbox();
               }}
               className="absolute top-6 right-6 text-white/70 hover:text-white transition-colors bg-white/10 hover:bg-white/20 rounded-full p-2"
             >
