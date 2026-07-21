@@ -93,6 +93,7 @@ const Navbar: React.FC<NavbarProps> = ({ onCartOpen }) => {
           <nav className="hidden md:flex items-center gap-8">
             {[
               { label: 'Home', id: 'hero' },
+              { label: 'Our Story', id: '/our-story' },
               { label: 'Cakes', id: 'products' },
               { label: 'Custom Cakes', id: 'custom-cake' },
               { label: 'Contact', id: 'contact' },
@@ -163,6 +164,7 @@ const Navbar: React.FC<NavbarProps> = ({ onCartOpen }) => {
             <nav className="flex flex-col px-6 py-6 gap-5">
               {[
                 { label: 'Home', id: 'hero' },
+                { label: 'Our Story', id: '/our-story' },
                 { label: 'Cakes Catalog', id: 'products' },
                 { label: 'Custom Cakes', id: 'custom-cake' },
                 { label: 'Contact Us', id: 'contact' },
