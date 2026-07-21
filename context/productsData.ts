@@ -6,6 +6,7 @@ export interface Product {
   image: string;
   images: string[];
   category: string;
+  availableWeights?: number[];
 }
 
 export const defaultProducts: Product[] = [

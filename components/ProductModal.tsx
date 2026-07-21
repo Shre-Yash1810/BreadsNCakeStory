@@ -13,14 +13,14 @@ interface ProductModalProps {
 const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
   const { addToCart } = useApp();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [weight, setWeight] = useState(0.5); // Default weight: 0.5 kg
+  const [weight, setWeight] = useState(product?.availableWeights?.[0] || 0.5);
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
 
   useEffect(() => {
     // Reset modal states when product changes
     setSelectedImageIndex(0);
-    setWeight(0.5);
+    setWeight(product?.availableWeights?.[0] || 0.5);
     setQuantity(1);
     setIsAdded(false);
   }, [product]);
@@ -138,25 +138,30 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
                   Select Weight Requirement
                 </label>
                 <div className="grid grid-cols-3 gap-2.5">
-                  {[
-                    { label: '0.5 kg', value: 0.5, desc: 'Base size' },
-                    { label: '1.0 kg', value: 1, desc: 'Standard' },
-                    { label: '2.0 kg', value: 2, desc: 'Feast size' }
-                  ].map((preset) => (
-                    <button
-                      key={preset.value}
-                      type="button"
-                      onClick={() => setWeight(preset.value)}
-                      className={`py-2 px-3 border rounded-xl flex flex-col items-center justify-center transition-all duration-300 ${
-                        weight === preset.value
-                          ? 'border-luxury-gold bg-luxury-champagne/40 text-cocoa-900 shadow-sm font-semibold'
-                          : 'border-cream-200 bg-white text-cocoa-500 hover:border-cream-300'
-                      }`}
-                    >
-                      <span className="text-xs">{preset.label}</span>
-                      <span className="text-[9px] text-cocoa-100 font-normal leading-none mt-0.5">{preset.desc}</span>
-                    </button>
-                  ))}
+                  {(product.availableWeights && product.availableWeights.length > 0 ? product.availableWeights : [0.5, 1, 2]).map((wValue) => {
+                    let desc = 'Custom size';
+                    if (wValue === 0.5) desc = 'Base size';
+                    else if (wValue === 1) desc = 'Standard';
+                    else if (wValue === 1.5) desc = 'Medium';
+                    else if (wValue === 2) desc = 'Feast size';
+                    else if (wValue > 2) desc = 'Party size';
+                    
+                    return (
+                      <button
+                        key={wValue}
+                        type="button"
+                        onClick={() => setWeight(wValue)}
+                        className={`py-2 px-3 border rounded-xl flex flex-col items-center justify-center transition-all duration-300 ${
+                          weight === wValue
+                            ? 'border-luxury-gold bg-luxury-champagne/40 text-cocoa-900 shadow-sm font-semibold'
+                            : 'border-cream-200 bg-white text-cocoa-500 hover:border-cream-300'
+                        }`}
+                      >
+                        <span className="text-xs">{Number.isInteger(wValue) ? `${wValue}.0` : wValue} kg</span>
+                        <span className="text-[9px] text-cocoa-100 font-normal leading-none mt-0.5">{desc}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

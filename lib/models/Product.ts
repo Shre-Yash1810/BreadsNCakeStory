@@ -9,6 +9,7 @@ export interface IProduct extends Document {
   images: string[];
   category: string;
   isAddon?: boolean;
+  availableWeights?: number[];
 }
 
 const ProductSchema: Schema = new Schema(
@@ -20,7 +21,8 @@ const ProductSchema: Schema = new Schema(
     image: { type: String, required: true },
     images: { type: [String], default: [] },
     category: { type: String, required: true },
-    isAddon: { type: Boolean, default: false }
+    isAddon: { type: Boolean, default: false },
+    availableWeights: { type: [Number], default: [0.5, 1, 2] }
   },
   {
     timestamps: true

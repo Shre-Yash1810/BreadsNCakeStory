@@ -44,7 +44,8 @@ export default function AdminClient() {
     description: '',
     price: '',
     category: 'Birthday',
-    image: ''
+    image: '',
+    availableWeights: [] as number[]
   });
   
   // Image Upload helper converting to Base64
@@ -142,7 +143,8 @@ export default function AdminClient() {
         description: productForm.description,
         price: priceNum,
         category: categoryVal,
-        image: imgUrl
+        image: imgUrl,
+        availableWeights: productForm.availableWeights.length > 0 ? productForm.availableWeights : [0.5, 1, 2]
       });
     } else {
       addProduct({
@@ -151,13 +153,14 @@ export default function AdminClient() {
         price: priceNum,
         category: categoryVal,
         image: imgUrl,
-        images: [imgUrl]
+        images: [imgUrl],
+        availableWeights: productForm.availableWeights.length > 0 ? productForm.availableWeights : [0.5, 1, 2]
       });
     }
 
     setIsProductFormOpen(false);
     setEditingProduct(null);
-    setProductForm({ name: '', description: '', price: '', category: 'Birthday', image: '' });
+    setProductForm({ name: '', description: '', price: '', category: 'Birthday', image: '', availableWeights: [] });
     setIsNewCategoryMode(false);
     setNewCategoryName('');
   };
@@ -169,7 +172,8 @@ export default function AdminClient() {
       description: prod.description,
       price: prod.price.toString(),
       category: prod.category,
-      image: prod.image
+      image: prod.image,
+      availableWeights: prod.availableWeights || [0.5, 1, 2]
     });
     setIsNewCategoryMode(false);
     setNewCategoryName('');
@@ -692,6 +696,32 @@ export default function AdminClient() {
                         required
                       />
                     </div>
+
+                    {!(isAddonFormMode || productForm.category === 'Add-ons') && (
+                      <div>
+                        <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-2">Available Weights (kg)</label>
+                        <div className="flex flex-wrap gap-2">
+                          {[0.5, 1, 1.5, 2, 2.5, 3, 4, 5].map((w) => (
+                            <label key={w} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs cursor-pointer transition-colors ${productForm.availableWeights.includes(w) ? 'bg-luxury-champagne border-luxury-gold text-cocoa-900 font-bold shadow-sm' : 'bg-white border-cream-200 text-cocoa-500 hover:border-cream-300'}`}>
+                              <input
+                                type="checkbox"
+                                className="hidden"
+                                checked={productForm.availableWeights.includes(w)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setProductForm(prev => ({ ...prev, availableWeights: [...prev.availableWeights, w].sort() }));
+                                  } else {
+                                    setProductForm(prev => ({ ...prev, availableWeights: prev.availableWeights.filter(val => val !== w) }));
+                                  }
+                                }}
+                              />
+                              {w} kg
+                            </label>
+                          ))}
+                        </div>
+                        <p className="text-[10px] text-cocoa-100 mt-1 italic">Select which weights this cake can be ordered in.</p>
+                      </div>
+                    )}
 
                     <div>
                       <label className="block font-bold text-cocoa-500 uppercase tracking-wider mb-1">
