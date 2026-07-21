@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import { ArrowLeft, X } from 'lucide-react';
 import Link from 'next/link';
@@ -30,6 +30,15 @@ const staggerContainer = {
 
 export default function OurStoryPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [activeMobileIndex, setActiveMobileIndex] = useState(0);
+
+  useEffect(() => {
+    if (images.length === 0) return;
+    const interval = setInterval(() => {
+      setActiveMobileIndex((prev) => (prev + 1) % images.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <>
@@ -108,7 +117,8 @@ export default function OurStoryPage() {
                   <h2 className="heading-luxury text-3xl text-cocoa-900">Networking & Seminars</h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-16">
+                {/* Desktop Grid */}
+                <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-16">
                   {images.map((src, index) => (
                     <motion.div
                       key={index}
@@ -128,6 +138,57 @@ export default function OurStoryPage() {
                       </div>
                     </motion.div>
                   ))}
+                </div>
+
+                {/* Mobile Slider */}
+                <div className="md:hidden max-w-sm mx-auto mb-16 relative px-4">
+                  <div className="relative overflow-hidden h-72 w-full flex items-center justify-center rounded-xl shadow-md">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={activeMobileIndex}
+                        initial={{ opacity: 0, x: 30 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -30 }}
+                        transition={{ duration: 0.4, ease: 'easeInOut' }}
+                        drag="x"
+                        dragConstraints={{ left: 0, right: 0 }}
+                        onDragEnd={(e, { offset, velocity }) => {
+                          const swipe = Math.abs(offset.x) * velocity.x;
+                          if (swipe < -5000 || offset.x < -40) {
+                            setActiveMobileIndex((prev) => (prev + 1) % images.length);
+                          } else if (swipe > 5000 || offset.x > 40) {
+                            setActiveMobileIndex((prev) => (prev - 1 + images.length) % images.length);
+                          }
+                        }}
+                        className="absolute inset-0 cursor-grab active:cursor-grabbing w-full h-full group"
+                        onClick={() => setSelectedImage(images[activeMobileIndex])}
+                      >
+                        <Image
+                          src={images[activeMobileIndex]}
+                          alt="Breads and CakeStory Seminar and Journey"
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-cocoa-900/60 to-transparent opacity-0 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+                           <span className="text-white font-semibold tracking-wider uppercase text-sm">View Image</span>
+                        </div>
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
+                  
+                  {/* Dots Indicator */}
+                  <div className="flex justify-center gap-2 mt-6">
+                    {images.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveMobileIndex(idx)}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          idx === activeMobileIndex ? 'bg-luxury-gold w-4' : 'bg-cream-200'
+                        }`}
+                        aria-label={`Go to slide ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
                 </div>
 
                 <motion.div variants={fadeInUp} className="bg-cocoa-900 text-cream-50 rounded-2xl p-8 sm:p-12 shadow-xl relative overflow-hidden">
