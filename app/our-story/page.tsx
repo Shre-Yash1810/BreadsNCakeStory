@@ -1,11 +1,11 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const images = [
   '/our_story/080b665f-77dc-4198-b5d2-354c693b4f62.jpg',
@@ -29,6 +29,8 @@ const staggerContainer = {
 };
 
 export default function OurStoryPage() {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   return (
     <>
       <Navbar />
@@ -112,7 +114,8 @@ export default function OurStoryPage() {
                       key={index}
                       variants={fadeInUp}
                       whileHover={{ scale: 1.02 }}
-                      className={`relative rounded-xl overflow-hidden shadow-md group ${index === 0 ? 'md:col-span-2 lg:col-span-2 h-64 sm:h-80' : 'h-64 sm:h-80'}`}
+                      onClick={() => setSelectedImage(src)}
+                      className={`relative rounded-xl overflow-hidden shadow-md group cursor-pointer ${index === 0 ? 'md:col-span-2 lg:col-span-2 h-64 sm:h-80' : 'h-64 sm:h-80'}`}
                     >
                       <Image
                         src={src}
@@ -120,7 +123,9 @@ export default function OurStoryPage() {
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-cocoa-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-cocoa-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                         <span className="text-white font-semibold tracking-wider uppercase text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">View Image</span>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
@@ -158,6 +163,46 @@ export default function OurStoryPage() {
           </div>
         </div>
       </main>
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedImage(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-cocoa-900/95 p-4 sm:p-8 cursor-zoom-out backdrop-blur-sm"
+          >
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImage(null);
+              }}
+              className="absolute top-6 right-6 text-white/70 hover:text-white transition-colors bg-white/10 hover:bg-white/20 rounded-full p-2"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative w-full h-full max-w-5xl max-h-[85vh] rounded-2xl overflow-hidden shadow-2xl cursor-default"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Image
+                src={selectedImage}
+                alt="Enlarged preview"
+                fill
+                className="object-contain"
+                sizes="(max-width: 1024px) 100vw, 1024px"
+                priority
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
