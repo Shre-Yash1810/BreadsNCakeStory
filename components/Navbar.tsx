@@ -30,6 +30,12 @@ const Navbar: React.FC<NavbarProps> = ({ onCartOpen }) => {
   }, []);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    if (id.startsWith('/')) return; // Allow default routing for regular paths
+
+    if (window.location.pathname !== '/') {
+      return; // Allow the browser to navigate to /#id
+    }
+
     e.preventDefault();
     setIsMobileMenuOpen(false);
     const element = document.getElementById(id);
@@ -89,11 +95,13 @@ const Navbar: React.FC<NavbarProps> = ({ onCartOpen }) => {
               { label: 'Home', id: 'hero' },
               { label: 'Cakes', id: 'products' },
               { label: 'Custom Cakes', id: 'custom-cake' },
-              { label: 'Contact', id: 'contact' }
+              { label: 'Contact', id: 'contact' },
+              { label: 'Privacy', id: '/privacy-policy' },
+              { label: 'Terms', id: '/terms-conditions' }
             ].map((item) => (
               <a
                 key={item.id}
-                href={`#${item.id}`}
+                href={item.id.startsWith('/') ? item.id : `/#${item.id}`}
                 onClick={(e) => handleNavClick(e, item.id)}
                 className="text-sm font-medium text-cocoa-500 hover:text-luxury-gold transition-colors duration-300 relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-luxury-gold after:transition-all after:duration-300 hover:after:w-full"
               >
@@ -157,11 +165,13 @@ const Navbar: React.FC<NavbarProps> = ({ onCartOpen }) => {
                 { label: 'Home', id: 'hero' },
                 { label: 'Cakes Catalog', id: 'products' },
                 { label: 'Custom Cakes', id: 'custom-cake' },
-                { label: 'Contact Us', id: 'contact' }
+                { label: 'Contact Us', id: 'contact' },
+                { label: 'Privacy Policy', id: '/privacy-policy' },
+                { label: 'Terms & Conditions', id: '/terms-conditions' }
               ].map((item) => (
                 <a
                   key={item.id}
-                  href={`#${item.id}`}
+                  href={item.id.startsWith('/') ? item.id : `/#${item.id}`}
                   onClick={(e) => handleNavClick(e, item.id)}
                   className="heading-luxury text-lg text-cocoa-900 hover:text-luxury-gold transition-colors duration-300 font-semibold py-1 border-b border-cream-100"
                 >

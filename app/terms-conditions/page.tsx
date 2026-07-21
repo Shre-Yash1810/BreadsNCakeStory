@@ -37,16 +37,16 @@ export default function TermsConditionsPage() {
 
               <h3>1. Orders & Custom Requests</h3>
               <ul>
-                <li>All orders are subject to availability and confirmation of the order price.</li>
-                <li>Custom cake inquiries must be placed with sufficient notice. Submitting an inquiry does not guarantee an order until we have confirmed availability and received any required advance payments.</li>
-                <li>Modifications to custom orders must be requested at least 48 hours prior to the delivery/pickup time and are subject to approval.</li>
+                <li>Placing an order request on this website does not constitute a confirmed order. All orders are finalized and confirmed via WhatsApp communication with our team.</li>
+                <li>Orders are subject to availability. Submitting an inquiry does not guarantee an order until we have confirmed availability and received any required advance payments.</li>
+                <li>Modifications to orders must be requested at least 48 hours prior to the delivery/pickup time and are subject to approval.</li>
               </ul>
 
               <h3>2. Pricing & Payments</h3>
               <ul>
                 <li>All prices are inclusive of applicable taxes unless stated otherwise.</li>
-                <li>We reserve the right to change our product prices at any time without prior notice. However, changes will not affect orders that have already been confirmed.</li>
-                <li>Payments must be completed through our designated payment gateways or in cash upon store pickup, as agreed during the ordering process.</li>
+                <li>We reserve the right to change our product prices at any time without prior notice. However, changes will not affect orders that have already been confirmed via WhatsApp.</li>
+                <li>Payments are handled manually upon order confirmation via WhatsApp (e.g., UPI, bank transfer, or cash upon store pickup/delivery). This website does not process payments directly.</li>
               </ul>
 
               <h3>3. Delivery & Fulfillment</h3>
@@ -58,9 +58,9 @@ export default function TermsConditionsPage() {
 
               <h3>4. Cancellations & Refunds</h3>
               <ul>
-                <li>Cancellations for standard orders are accepted if made within 24 hours of the scheduled delivery time.</li>
-                <li>Custom orders cannot be canceled or refunded once preparation has begun, typically 48 hours before the delivery date.</li>
-                <li>If a product arrives damaged or does not meet our quality standards, please contact us immediately with photographic evidence for assessment and potential refund or replacement.</li>
+                <li>In case of order cancellation, cancellation charges may apply.</li>
+                <li>Custom orders cannot be canceled or refunded once preparation has begun (typically 48 hours before the delivery date).</li>
+                <li>If a product arrives damaged or does not meet our quality standards, please contact us immediately via WhatsApp with photographic evidence for assessment.</li>
               </ul>
 
               <h3>5. Intellectual Property</h3>

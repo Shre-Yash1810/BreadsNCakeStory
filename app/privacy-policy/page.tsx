@@ -39,8 +39,7 @@ export default function PrivacyPolicyPage() {
               <ul>
                 <li><strong>Identity Data:</strong> includes first name, last name, username, or similar identifier.</li>
                 <li><strong>Contact Data:</strong> includes billing address, delivery address, email address, and telephone numbers.</li>
-                <li><strong>Financial Data:</strong> includes payment card details (processed securely via our payment gateways, not stored on our servers).</li>
-                <li><strong>Transaction Data:</strong> includes details about payments to and from you and other details of products you have purchased from us.</li>
+                <li><strong>Transaction Data:</strong> includes details about products you have requested to purchase from us via WhatsApp.</li>
                 <li><strong>Technical Data:</strong> includes internet protocol (IP) address, browser type and version, time zone setting and location.</li>
               </ul>
 
