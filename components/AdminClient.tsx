@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useApp, Product, Order } from '@/context/AppContext';
-import { KeyRound, LogOut, LayoutDashboard, ShoppingCart, Cake, Settings, Image as ImageIcon, Plus, Edit3, Trash2, Search, Download, Save, Check, X } from 'lucide-react';
+import { KeyRound, LogOut, LayoutDashboard, ShoppingCart, Cake, Settings, Image as ImageIcon, Plus, Edit3, Trash2, Search, Download, Save, Check, X, AlertCircle } from 'lucide-react';
 
 export default function AdminClient() {
   const {
@@ -796,14 +796,28 @@ export default function AdminClient() {
                       o.mobile.includes(orderSearchQuery) ||
                       o.id.includes(orderSearchQuery)
                     ))
-                    .map((order) => (
-                      <div
-                        key={order.id}
-                        className="bg-white rounded-2xl border border-cream-200 overflow-hidden shadow-sm max-w-3xl mx-auto"
-                      >
-                        <div className="bg-cream-50/50 p-4 border-b border-cream-100 flex justify-between items-center text-xs">
-                          <div className="flex items-center gap-3">
-                            <span className="font-extrabold text-cocoa-900 text-sm">#{order.id}</span>
+                    .map((order) => {
+                      const deliveryDate = new Date(order.deliveryDate);
+                      const now = new Date();
+                      now.setHours(0, 0, 0, 0);
+                      const dDate = new Date(deliveryDate);
+                      dDate.setHours(0, 0, 0, 0);
+                      const diffDays = Math.round((dDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                      const isDueSoon = diffDays <= 1 && (order.status === 'New' || order.status === 'Processing');
+
+                      return (
+                        <div
+                          key={order.id}
+                          className={`bg-white rounded-2xl border ${isDueSoon ? 'border-red-400 shadow-[0_0_15px_rgba(248,113,113,0.15)]' : 'border-cream-200 shadow-sm'} overflow-hidden max-w-3xl mx-auto`}
+                        >
+                          <div className={`${isDueSoon ? 'bg-red-50/50 border-red-100' : 'bg-cream-50/50 border-cream-100'} p-4 border-b flex justify-between items-center text-xs`}>
+                            <div className="flex items-center gap-3">
+                              <span className={`font-extrabold text-sm ${isDueSoon ? 'text-red-600' : 'text-cocoa-900'}`}>#{order.id}</span>
+                              {isDueSoon && (
+                                <span className="px-2 py-0.5 bg-red-100 text-red-600 border border-red-200 rounded-full text-[9px] font-bold uppercase tracking-wider animate-pulse flex items-center gap-1">
+                                  <AlertCircle className="w-3 h-3" /> Due {diffDays === 0 ? 'Today' : diffDays < 0 ? 'Overdue' : 'Tomorrow'}
+                                </span>
+                              )}
                             <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
                               order.status === 'Sold' ? 'bg-green-50 text-green-600 border border-green-200' :
                               order.status === 'Completed' ? 'bg-blue-50 text-blue-500 border border-blue-200' :
@@ -851,8 +865,8 @@ export default function AdminClient() {
                                 <span className="font-semibold text-cocoa-900">{order.whatsapp}</span>
                               </div>
                               <div>
-                                <span className="text-[9px] text-cocoa-100 block uppercase font-bold tracking-wider">Event Date</span>
-                                <span className="font-semibold text-cocoa-900">{new Date(order.deliveryDate).toLocaleDateString()}</span>
+                                <span className={`text-[9px] block uppercase font-bold tracking-wider ${isDueSoon ? 'text-red-500' : 'text-cocoa-100'}`}>Event Date</span>
+                                <span className={`font-semibold ${isDueSoon ? 'text-red-600' : 'text-cocoa-900'}`}>{new Date(order.deliveryDate).toLocaleDateString()}</span>
                               </div>
                               <div>
                                 <span className="text-[9px] text-cocoa-100 block uppercase font-bold tracking-wider">Event Time</span>
@@ -1001,7 +1015,8 @@ export default function AdminClient() {
                           </div>
                         </div>
                       </div>
-                    ))}
+                    );
+                    })}
                     
                     {orders.filter(o => o.status === statusColumn && (
                       o.customerName.toLowerCase().includes(orderSearchQuery.toLowerCase()) ||
