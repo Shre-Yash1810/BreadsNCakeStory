@@ -490,7 +490,7 @@ export default function AdminClient() {
                 <button
                   onClick={() => {
                     setEditingProduct(null);
-                    setProductForm({ name: '', description: '', price: '', category: 'Birthday', image: '' });
+                    setProductForm({ name: '', description: '', price: '', category: 'Birthday', image: '', availableWeights: [] });
                     setIsNewCategoryMode(false);
                     setNewCategoryName('');
                     setIsAddonFormMode(false);
@@ -504,7 +504,7 @@ export default function AdminClient() {
                 <button
                   onClick={() => {
                     setEditingProduct(null);
-                    setProductForm({ name: '', description: '', price: '', category: 'Add-ons', image: '' });
+                    setProductForm({ name: '', description: '', price: '', category: 'Add-ons', image: '', availableWeights: [] });
                     setIsNewCategoryMode(false);
                     setNewCategoryName('');
                     setIsAddonFormMode(true);
