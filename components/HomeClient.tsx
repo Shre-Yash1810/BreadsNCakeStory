@@ -43,8 +43,10 @@ export default function HomeClient() {
     eventType: 'Birthday',
     theme: '',
     weight: '1',
-    weight: '1',
     date: '',
+    deliveryHour: '10',
+    deliveryMinute: '00',
+    deliveryAmPm: 'AM',
     instructions: '',
     address: '',
     landmark: ''
@@ -173,6 +175,7 @@ export default function HomeClient() {
     else if (!/^\d{10}$/.test(customForm.phone.trim())) newErrors.phone = 'Enter a valid 10-digit number';
     if (!customForm.theme.trim()) newErrors.theme = 'Design theme / theme concept is required';
     if (!customForm.date) newErrors.date = 'Preferred date is required';
+    if (!customForm.deliveryHour || !customForm.deliveryMinute) newErrors.deliveryTime = 'Delivery time is required';
     if (customHomeDelivery && !customForm.address.trim()) newErrors.address = 'Delivery address is required';
 
     if (Object.keys(newErrors).length > 0) {
@@ -205,6 +208,8 @@ export default function HomeClient() {
       setIsUploadingCustom(false);
     }
 
+    const finalDeliveryTime = `${customForm.deliveryHour}:${customForm.deliveryMinute.padStart(2, '0')} ${customForm.deliveryAmPm}`;
+
     // Format WhatsApp message
     let message = `🎂 *Custom Cake Inquiry - ${settings.bakeryName}* 🎂\n`;
     message += `==========================\n\n`;
@@ -215,7 +220,7 @@ export default function HomeClient() {
     message += `• *Event Type:* ${customForm.eventType}\n`;
     message += `• *Cake Theme/Idea:* ${customForm.theme}\n`;
     message += `• *Est. Weight:* ${customForm.weight} kg\n`;
-    message += `• *Delivery Date:* ${customForm.date}\n\n`;
+    message += `• *Delivery Date & Time:* ${customForm.date} at ${finalDeliveryTime}\n\n`;
     if (customForm.instructions.trim()) {
       message += `✍️ *Instructions/Flavor Request:*\n`;
       message += `${customForm.instructions}\n\n`;
@@ -239,7 +244,7 @@ export default function HomeClient() {
       whatsapp: customForm.phone,
       address: customHomeDelivery ? customForm.address : 'Bespoke Custom Cake Inquiry',
       landmark: customHomeDelivery ? customForm.landmark : `Event: ${customForm.eventType}`,
-      notes: `Theme: ${customForm.theme}. Prep Date: ${customForm.date}. Instructions: ${customForm.instructions}`,
+      notes: `Theme: ${customForm.theme}. Prep Date: ${customForm.date} at ${finalDeliveryTime}. Instructions: ${customForm.instructions}`,
       items: [{
         id: `custom-${Date.now()}`,
         name: `Bespoke Custom Cake`,
@@ -249,6 +254,9 @@ export default function HomeClient() {
         image: uploadedUrl || '/images/cake_themed_1.png'
       }],
       total: customHomeDelivery ? DELIVERY_CHARGE : 0,
+      deliveryDate: new Date(customForm.date).toISOString(),
+      deliveryTime: finalDeliveryTime,
+      eventType: customForm.eventType as any,
       homeDelivery: customHomeDelivery,
       deliveryCharge: customHomeDelivery ? DELIVERY_CHARGE : 0
     });
@@ -267,6 +275,9 @@ export default function HomeClient() {
       theme: '',
       weight: '1',
       date: '',
+      deliveryHour: '10',
+      deliveryMinute: '00',
+      deliveryAmPm: 'AM',
       instructions: '',
       address: '',
       landmark: ''
@@ -646,22 +657,23 @@ export default function HomeClient() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">Est. Weight (kg)</label>
-                  <select
-                    name="weight"
-                    value={customForm.weight}
-                    onChange={handleCustomChange}
-                    className="w-full text-sm py-2.5 px-3 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium cursor-pointer"
-                  >
-                    <option value="1">1.0 kg</option>
-                    <option value="1.5">1.5 kg</option>
-                    <option value="2">2.0 kg</option>
-                    <option value="3">3.0 kg</option>
-                    <option value="5">5.0 kg+</option>
-                  </select>
-                </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">Est. Weight (kg)</label>
+                <select
+                  name="weight"
+                  value={customForm.weight}
+                  onChange={handleCustomChange}
+                  className="w-full text-sm py-2.5 px-3 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium cursor-pointer"
+                >
+                  <option value="1">1.0 kg</option>
+                  <option value="1.5">1.5 kg</option>
+                  <option value="2">2.0 kg</option>
+                  <option value="3">3.0 kg</option>
+                  <option value="5">5.0 kg+</option>
+                </select>
+              </div>
+
+              <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">Delivery Date</label>
                   <input
@@ -673,6 +685,73 @@ export default function HomeClient() {
                     className="w-full text-sm py-2.5 px-3 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium cursor-pointer"
                   />
                   {customErrors.date && <p className="text-red-500 text-[10px] mt-0.5 font-medium">{customErrors.date}</p>}
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">Delivery Time</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      maxLength={2}
+                      name="deliveryHour"
+                      value={customForm.deliveryHour}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '');
+                        if (val === '' || parseInt(val) <= 12) {
+                          setCustomForm(prev => ({ ...prev, deliveryHour: val }));
+                          setCustomErrors(prev => ({ ...prev, deliveryTime: '' }));
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (e.target.value !== '' && parseInt(e.target.value) < 1) {
+                          setCustomForm(prev => ({ ...prev, deliveryHour: '1' }));
+                        } else if (e.target.value === '') {
+                          setCustomForm(prev => ({ ...prev, deliveryHour: '12' }));
+                        }
+                      }}
+                      className="w-12 text-center text-sm py-2.5 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium bg-white"
+                      placeholder="HH"
+                    />
+                    <span className="text-cocoa-500 font-bold self-center">:</span>
+                    <input
+                      type="text"
+                      maxLength={2}
+                      name="deliveryMinute"
+                      value={customForm.deliveryMinute}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '');
+                        if (val === '' || parseInt(val) <= 59) {
+                          setCustomForm(prev => ({ ...prev, deliveryMinute: val }));
+                          setCustomErrors(prev => ({ ...prev, deliveryTime: '' }));
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (e.target.value === '') {
+                          setCustomForm(prev => ({ ...prev, deliveryMinute: '00' }));
+                        } else if (e.target.value.length === 1) {
+                          setCustomForm(prev => ({ ...prev, deliveryMinute: '0' + e.target.value }));
+                        }
+                      }}
+                      className="w-12 text-center text-sm py-2.5 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium bg-white"
+                      placeholder="MM"
+                    />
+                    <div className="flex bg-cream-100 rounded-lg p-1">
+                      <button
+                        type="button"
+                        onClick={() => setCustomForm(prev => ({ ...prev, deliveryAmPm: 'AM' }))}
+                        className={`px-3 py-1 rounded text-xs font-bold transition-colors ${customForm.deliveryAmPm === 'AM' ? 'bg-white text-cocoa-900 shadow-sm' : 'text-cocoa-500 hover:text-cocoa-900'}`}
+                      >
+                        AM
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCustomForm(prev => ({ ...prev, deliveryAmPm: 'PM' }))}
+                        className={`px-3 py-1 rounded text-xs font-bold transition-colors ${customForm.deliveryAmPm === 'PM' ? 'bg-white text-cocoa-900 shadow-sm' : 'text-cocoa-500 hover:text-cocoa-900'}`}
+                      >
+                        PM
+                      </button>
+                    </div>
+                  </div>
+                  {customErrors.deliveryTime && <p className="text-red-500 text-[10px] mt-0.5 font-medium">{customErrors.deliveryTime}</p>}
                 </div>
               </div>
 
