@@ -7,7 +7,7 @@ import { ShoppingBag, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface NavbarProps {
-  onCartOpen: () => void;
+  onCartOpen?: () => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onCartOpen }) => {
@@ -104,25 +104,27 @@ const Navbar: React.FC<NavbarProps> = ({ onCartOpen }) => {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-4">
-            <button
-              onClick={onCartOpen}
-              className="relative p-2.5 rounded-full hover:bg-cream-100 transition-colors duration-300 group"
-              aria-label="Open Cart"
-            >
-              <ShoppingBag className="w-5 h-5 text-cocoa-900 transition-transform duration-300 group-hover:scale-110" />
-              <AnimatePresence>
-                {cartItemsCount > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0 }}
-                    className="absolute -top-1 -right-1 bg-luxury-gold text-white font-sans text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-gold-glow"
-                  >
-                    {cartItemsCount}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </button>
+            {onCartOpen && (
+              <button
+                onClick={onCartOpen}
+                className="relative p-2.5 rounded-full hover:bg-cream-100 transition-colors duration-300 group"
+                aria-label="Open Cart"
+              >
+                <ShoppingBag className="w-5 h-5 text-cocoa-900 transition-transform duration-300 group-hover:scale-110" />
+                <AnimatePresence>
+                  {cartItemsCount > 0 && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      className="absolute -top-1 -right-1 bg-luxury-gold text-white font-sans text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-gold-glow"
+                    >
+                      {cartItemsCount}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </button>
+            )}
 
             {/* Mobile Menu Toggle */}
             <button
@@ -166,16 +168,18 @@ const Navbar: React.FC<NavbarProps> = ({ onCartOpen }) => {
                   {item.label}
                 </a>
               ))}
-              <button
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  onCartOpen();
-                }}
-                className="mt-2 bg-gold-gradient hover:opacity-90 text-white py-3 rounded-xl font-medium shadow-gold-glow flex items-center justify-center gap-2 transition-all duration-300 active:scale-95"
-              >
-                <ShoppingBag className="w-5 h-5" />
-                View Cart ({cartItemsCount})
-              </button>
+              {onCartOpen && (
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onCartOpen();
+                  }}
+                  className="mt-2 bg-gold-gradient hover:opacity-90 text-white py-3 rounded-xl font-medium shadow-gold-glow flex items-center justify-center gap-2 transition-all duration-300 active:scale-95"
+                >
+                  <ShoppingBag className="w-5 h-5" />
+                  View Cart ({cartItemsCount})
+                </button>
+              )}
             </nav>
           </motion.div>
         )}

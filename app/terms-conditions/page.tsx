@@ -11,7 +11,7 @@ export const metadata = {
 export default function TermsConditionsPage() {
   return (
     <>
-      <Navbar onCartOpen={() => {}} />
+      <Navbar />
       <main className="min-h-screen bg-cream-50 pt-32 pb-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link href="/" className="inline-flex items-center gap-2 text-cocoa-500 hover:text-luxury-gold transition-colors text-sm font-bold mb-8 uppercase tracking-wider">
