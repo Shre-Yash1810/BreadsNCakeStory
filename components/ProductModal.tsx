@@ -27,16 +27,11 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
 
   if (!product) return null;
 
-  // Calculate dynamic price based on weight multiplier
+  // Calculate dynamic price based on linear weight multiplier (base price is for 0.5kg)
   const getDynamicPrice = () => {
-    let multiplier = 1;
-    // Base price is for 0.5kg (multiplier = 1)
-    if (weight === 1) multiplier = 1.8;      // 10% discount on 2nd half kg
-    else if (weight === 1.5) multiplier = 2.6; // ~13% discount on 3rd half kg
-    else if (weight === 2) multiplier = 3.2;   // 20% discount on 4th half kg
-    else if (weight === 2.5) multiplier = 3.9; 
-    else if (weight > 2.5) multiplier = weight * 1.5; // Flat rate for larger cakes
-
+    // Formula: (Weight / 0.5) * Base Price
+    // Example: If base price is 500 for 0.5kg, then 1kg = 500 * (1/0.5) = 1000
+    const multiplier = weight / 0.5;
     return Math.round(product.price * multiplier);
   };
 
