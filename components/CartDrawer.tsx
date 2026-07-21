@@ -32,6 +32,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     landmark: '',
     notes: '',
     deliveryDate: '',
+    deliveryTime: '',
     eventType: 'General'
   });
 
@@ -73,6 +74,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     else if (!/^\d{10}$/.test(checkoutForm.whatsapp.trim())) newErrors.whatsapp = 'Enter a valid 10-digit number';
 
     if (!checkoutForm.deliveryDate) newErrors.deliveryDate = 'Delivery date is required';
+    if (!checkoutForm.deliveryTime) newErrors.deliveryTime = 'Delivery time is required';
     if (homeDelivery && !checkoutForm.address.trim()) newErrors.address = 'Delivery address is required';
 
     setErrors(newErrors);
@@ -109,6 +111,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         items: formattedItems,
         total: grandTotal,
         deliveryDate: new Date(checkoutForm.deliveryDate).toISOString(),
+        deliveryTime: checkoutForm.deliveryTime,
         eventType: checkoutForm.eventType as any,
         homeDelivery,
         deliveryCharge: homeDelivery ? DELIVERY_CHARGE : 0
@@ -123,7 +126,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
       message += `• *WhatsApp:* ${checkoutForm.whatsapp}\n\n`;
       message += `🎉 *Event Details:*\n`;
       message += `• *Event Type:* ${checkoutForm.eventType}\n`;
-      message += `• *Delivery Date:* ${checkoutForm.deliveryDate}\n\n`;
+      message += `• *Delivery Date & Time:* ${checkoutForm.deliveryDate} at ${checkoutForm.deliveryTime}\n\n`;
       message += `📦 *Order Items:*\n`;
       formattedItems.forEach((item, index) => {
         message += `${index + 1}. *${item.name}*\n`;
@@ -167,6 +170,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         landmark: '',
         notes: '',
         deliveryDate: '',
+        deliveryTime: '',
         eventType: 'General'
       });
       setHomeDelivery(false);
@@ -425,8 +429,23 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                       </div>
                       <div>
                         <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">
-                          Celebration Event
+                          Delivery Time
                         </label>
+                        <input
+                          type="time"
+                          name="deliveryTime"
+                          value={checkoutForm.deliveryTime}
+                          onChange={handleInputChange}
+                          className="w-full text-sm py-2.5 px-3 rounded-lg border border-cream-200 focus:outline-none focus:border-luxury-gold input-premium cursor-pointer"
+                        />
+                        {errors.deliveryTime && <p className="text-red-500 text-[10px] mt-0.5 font-medium">{errors.deliveryTime}</p>}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-cocoa-500 mb-1">
+                        Celebration Event
+                      </label>
                         <select
                           name="eventType"
                           value={checkoutForm.eventType}
@@ -441,7 +460,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                           <option value="Other">Other Celebration</option>
                         </select>
                       </div>
-                    </div>
 
                     {/* Home Delivery Toggle */}
                     <div className="bg-cream-100/30 p-4 rounded-xl border border-cream-200 space-y-2">

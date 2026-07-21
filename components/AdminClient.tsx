@@ -225,11 +225,11 @@ export default function AdminClient() {
   // CSV Export orders helper
   const exportOrdersCSV = () => {
     let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Order ID,Customer Name,Mobile,WhatsApp,Address,Landmark,Total,Status,Date,Ordered Items\n";
+    csvContent += "Order ID,Customer Name,Mobile,WhatsApp,Address,Landmark,Total,Status,Date,Delivery Date,Delivery Time,Ordered Items\n";
 
     orders.forEach(order => {
       const itemsDesc = order.items.map(i => `${i.name} (Qty:${i.quantity} Wt:${i.weight}kg)`).join(" | ");
-      csvContent += `"${order.id}","${order.customerName}","${order.mobile}","${order.whatsapp}","${order.address}","${order.landmark}",${order.total},"${order.status}","${order.date}","${itemsDesc}"\n`;
+      csvContent += `"${order.id}","${order.customerName}","${order.mobile}","${order.whatsapp}","${order.address}","${order.landmark}",${order.total},"${order.status}","${order.date}","${order.deliveryDate}","${order.deliveryTime}","${itemsDesc}"\n`;
     });
 
     const encodedUri = encodeURI(csvContent);
@@ -849,6 +849,14 @@ export default function AdminClient() {
                               <div>
                                 <span className="text-[9px] text-cocoa-100 block uppercase font-bold tracking-wider">WhatsApp</span>
                                 <span className="font-semibold text-cocoa-900">{order.whatsapp}</span>
+                              </div>
+                              <div>
+                                <span className="text-[9px] text-cocoa-100 block uppercase font-bold tracking-wider">Event Date</span>
+                                <span className="font-semibold text-cocoa-900">{new Date(order.deliveryDate).toLocaleDateString()}</span>
+                              </div>
+                              <div>
+                                <span className="text-[9px] text-cocoa-100 block uppercase font-bold tracking-wider">Event Time</span>
+                                <span className="font-semibold text-cocoa-900">{order.deliveryTime}</span>
                               </div>
                             </div>
                             

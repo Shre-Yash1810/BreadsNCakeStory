@@ -40,6 +40,7 @@ export interface Order {
   status: 'Pending' | 'Completed' | 'Sold';
   date: string;
   deliveryDate: string; // ISO String format for transfer
+  deliveryTime: string;
   eventType: 'Birthday' | 'Anniversary' | 'Baby Shower' | 'Corporate' | 'Other' | 'General';
   homeDelivery: boolean;
   deliveryCharge: number;

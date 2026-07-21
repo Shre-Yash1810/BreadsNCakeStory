@@ -22,6 +22,7 @@ export interface IOrder extends Document {
   status: 'Pending' | 'Completed' | 'Sold';
   date: string;
   deliveryDate: Date;
+  deliveryTime: string;
   eventType: 'Birthday' | 'Anniversary' | 'Baby Shower' | 'Corporate' | 'Other' | 'General';
   homeDelivery: boolean;
   deliveryCharge: number;
@@ -50,6 +51,7 @@ const OrderSchema: Schema = new Schema(
     status: { type: String, required: true, enum: ['Pending', 'Completed', 'Sold'], default: 'Pending' },
     date: { type: String, required: true },
     deliveryDate: { type: Date, required: true },
+    deliveryTime: { type: String, required: true },
     eventType: { type: String, required: true, enum: ['Birthday', 'Anniversary', 'Baby Shower', 'Corporate', 'Other', 'General'], default: 'General' },
     homeDelivery: { type: Boolean, default: false },
     deliveryCharge: { type: Number, default: 0 }
